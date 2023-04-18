@@ -1,4 +1,7 @@
 import random
+import pprint
+
+# Global variables
 
 
 def dice_roll():
@@ -83,6 +86,20 @@ BOARD_TILES_INFO = {
     "Luxury Tax": [" A space on the board where players must pay a luxury tax.", "N/A", 0, 0, [0, 0, 0, 0, 0, 0], 0, 0],
     "Mumbai": ["The financial capital of India known for its vibrant culture, Bollywood film industry, and landmarks such as the Gateway of India and Marine Drive.", "Dark Blue", 400, 200, [50, 200, 600, 1400, 1700, 2000], 200, 200]
 }
+
+# Moves list
+def display_moves():
+    print('-------------Moves-------------')
+    print("{:<30}{}".format('Roll dice', 'r'))
+    print("{:<30}{}".format('Build a house', 'h'))
+    print("{:<30}{}".format('Build a hotel', 'f'))
+    print("{:<30}{}".format('Trade with players', 't'))
+    print("{:<30}{}".format('View assets owned', 'v'))
+    print("{:<30}{}".format('Sell property', 's'))
+    print("{:<30}{}".format('End turn', 'x'))
+
+display_moves()
+
 
 
 
