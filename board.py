@@ -14,7 +14,7 @@ def dice_roll():
     return total_dice
 
 
-BOARD_TILES_NO = 32
+BOARD_TILES_NUMBER = 32
 # BOARD_TILES = {"Start/GO",
 #                "Goa",
 #                "Income Tax",
@@ -87,8 +87,12 @@ BOARD_TILES_INFO = {
     "Mumbai": ["The financial capital of India known for its vibrant culture, Bollywood film industry, and landmarks such as the Gateway of India and Marine Drive.", "Dark Blue", 400, 200, [50, 200, 600, 1400, 1700, 2000], 200, 200]
 }
 
-# Moves list
+def game_over():
+    pass
+
+# Moves list, change this to display on the web page
 def display_moves():
+    # Display player stats(name, cash in hand, rounds played, position)
     print('-------------Moves-------------')
     print("{:<30}{}".format('Roll dice', 'r'))
     print("{:<30}{}".format('Build a house', 'h'))
@@ -99,6 +103,13 @@ def display_moves():
     print("{:<30}{}".format('End turn', 'x'))
 
 display_moves()
+
+# print(BOARD_TILES_INFO['Start/GO'])
+# for i in BOARD_TILES_INFO:
+#     print(i)
+#     print(BOARD_TILES_INFO[i])
+
+
 
 
 
