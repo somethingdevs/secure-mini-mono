@@ -1,0 +1,26 @@
+from typing import List, Any
+import board
+import property
+
+def player_moves():
+    
+    print("in moves")
+    print(property.player1.position)
+    property.player1.position += board.dice_roll(property.player1.username)
+    print(property.player1.position)
+    print(f'You are now at {board.BOARD_TILES[property.player1.position]}')
+    print(f'{ board.BOARD_TILES[property.player1.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player1.position]]}')
+
+    print(property.player2.position)
+    property.player2.position += board.dice_roll(property.player2.username)
+    print(property.player2.position)
+    print(f'You are now at {board.BOARD_TILES[property.player2.position]}')
+    print(f'{board.BOARD_TILES[property.player2.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player2.position]]}')
+
+    print(property.player3.position)
+    property.player3.position += board.dice_roll(property.player3.username)
+    print(property.player3.position)
+    print(f'You are now at {board.BOARD_TILES[property.player3.position]}')
+    print(f'{board.BOARD_TILES[property.player3.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player3.position]]}')
+
+player_moves()

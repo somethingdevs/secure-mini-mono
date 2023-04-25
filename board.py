@@ -13,6 +13,8 @@ def dice_roll(player):
     print(f'{player} rolled {total_dice}')  # Change player name
     return total_dice
 
+# class board: 
+#     testVar = 20
 
 BOARD_TILES_NUMBER = 32
 # BOARD_TILES = {"Start/GO",
@@ -48,7 +50,7 @@ BOARD_TILES_NUMBER = 32
 #                "Luxury Tax",
 #                "Mumbai"}
 
-BOARD_TILES = {0: 'Start/GO', 1: 'Goa', 2: 'Income Tax', 3: 'Pondicherry', 4: 'Secunderabad Station', 5: 'Rishikesh', 6: 'Nainital', 7: 'Gulmarg', 8: 'Visiting Jail/Jail', 9: 'Udaipur', 10: 'Raipur', 11: 'Darjeeling', 12: 'Chennai Central Station', 13: 'Vijayawada', 14: 'Wayanad', 15: 'Mysore', 16: 'Free Parking', 17: 'Gangtok', 18: 'Ahmedabad', 19: 'Lucknow', 20: 'Chatrapathi Shivaji Terminal Station', 21: 'Jaipur', 22: 'Bhopal', 23: 'Kochi', 24: 'GO TO JAIL', 25: 'Bangalore', 26: 'Hyderabad', 27: 'Kolkata', 28: 'Howrah Station', 29: 'Delhi', 30: 'Luxury Tax', 31: 'Mumbai'}
+BOARD_TILES = {0: 'Start/GO', 1: 'Goa', 2: 'Income Tax', 3: 'Pondicherry', 4: 'Railway1: Secundarabad Station', 5: 'Rishikesh', 6: 'Nainital', 7: 'Gulmarg', 8: 'Visiting Jail', 9: 'Udaipur', 10: 'Raipur', 11: 'Darjeeling', 12: 'Chennai Central Station', 13: 'Vijayawada', 14: 'Wayanad', 15: 'Mysore', 16: 'Free Parking', 17: 'Gangtok', 18: 'Ahmedabad', 19: 'Lucknow', 20: 'Chatrapathi Shivaji Terminal Station', 21: 'Jaipur', 22: 'Bhopal', 23: 'Kochi', 24: 'GO TO JAIL', 25: 'Bangalore', 26: 'Hyderabad', 27: 'Kolkata', 28: 'Howrah Station', 29: 'Delhi', 30: 'Luxury Tax', 31: 'Mumbai'}
 
 
 # Dictionary looking ass
