@@ -26,22 +26,28 @@ class Player:
 
 # Creating and accessing players details, need to change this to connected players later
 player1 = Player('Ali', 0, 1500, [], False, False)
-player2 = Player('Poorv', 0, 1500, [], False, False)
+player2 = Player('Poorvi', 0, 1500, [], False, False)
 player3 = Player('Deep', 0, 1500, [], False, False)
 
 player_list = [player1, player2, player3]
 
 print(player1.position)
-
-
 player1.position += board.dice_roll(player1.username)
-
 print(player1.position)
 print(f'You are now at {board.BOARD_TILES[player1.position]}')
 print(f'{board.BOARD_TILES[player1.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player1.position]]}')
 
+print(player2.position)
+player2.position += board.dice_roll(player2.username)
+print(player2.position)
+print(f'You are now at {board.BOARD_TILES[player2.position]}')
+print(f'{board.BOARD_TILES[player2.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player2.position]]}')
 
-
+print(player3.position)
+player3.position += board.dice_roll(player3.username)
+print(player3.position)
+print(f'You are now at {board.BOARD_TILES[player3.position]}')
+print(f'{board.BOARD_TILES[player3.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player3.position]]}')
 
 
 # Printing details, use this as reference on how to access Class Player
