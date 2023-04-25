@@ -1,26 +1,34 @@
 from typing import List, Any
 import board
 import property
+player1 = property.Player('Ali', 0, 1500, [], False, False)
+player2 = property.Player('Poorvi', 0, 1500, [], False, False)
+player3 = property.Player('Deep', 0, 1500, [], False, False)
 
 def player_moves():
-    
-    print("in moves")
-    print(property.player1.position)
-    property.player1.position += board.dice_roll(property.player1.username)
-    print(property.player1.position)
-    print(f'You are now at {board.BOARD_TILES[property.player1.position]}')
-    print(f'{ board.BOARD_TILES[property.player1.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player1.position]]}')
+    ch = int(input())
+    while ch == 1:
+        print("in moves")
+        print(player1.position)
+        player1.position += board.dice_roll(player1.username)
+        print(player1.position)
+        player1.position = player1.position % 31
+        print(f'You are now at {board.BOARD_TILES[player1.position]}')
+        print(f'{ board.BOARD_TILES[player1.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player1.position]]}')
 
-    print(property.player2.position)
-    property.player2.position += board.dice_roll(property.player2.username)
-    print(property.player2.position)
-    print(f'You are now at {board.BOARD_TILES[property.player2.position]}')
-    print(f'{board.BOARD_TILES[property.player2.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player2.position]]}')
+        print(player2.position)
+        player2.position += board.dice_roll(player2.username)
+        print(player2.position)
+        player2.position = player2.position % 31
+        print(f'You are now at {board.BOARD_TILES[player2.position]}')
+        print(f'{board.BOARD_TILES[player2.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player2.position]]}')
 
-    print(property.player3.position)
-    property.player3.position += board.dice_roll(property.player3.username)
-    print(property.player3.position)
-    print(f'You are now at {board.BOARD_TILES[property.player3.position]}')
-    print(f'{board.BOARD_TILES[property.player3.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[property.player3.position]]}')
+        print(player3.position)
+        player3.position += board.dice_roll(player3.username)
+        print(player3.position)
+        player3.position = player3.position % 31
+        print(f'You are now at {board.BOARD_TILES[player3.position]}')
+        print(f'{board.BOARD_TILES[player3.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player3.position]]}')
+        ch = int(input())
 
 player_moves()
