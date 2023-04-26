@@ -9,8 +9,8 @@ def dice_roll(player):
     second_dice = random.randint(1, 6)
     total_dice = first_dice + second_dice
     if first_dice == second_dice:
-        print(f'{player} rolled doubles of {first_dice}!')  # Change player name
-    print(f'{player} rolled {total_dice}')  # Change player name
+        print(f'{player.username} rolled doubles of {first_dice}!')  # Change player name
+    print(f'{player.username} rolled {total_dice}', end='\n\n')  # Change player name
     return total_dice
 
 # class board: 
@@ -92,8 +92,13 @@ BOARD_TILES_INFO = {
     "Mumbai": ["The financial capital of India known for its vibrant culture, Bollywood film industry, and landmarks such as the Gateway of India and Marine Drive.", "Dark Blue", 400, 200, [50, 200, 600, 1400, 1700, 2000], 200, 200]
 }
 
-def game_over():
-    pass
+
+def game_over(player):
+    if player.game_round == 15:
+        print('Game Over!')
+        return True
+    else:
+        return False
 
 # Moves list, change this to display on the web page
 def display_moves():
@@ -105,7 +110,7 @@ def display_moves():
     print("{:<30}{}".format('Trade with players', 't'))
     print("{:<30}{}".format('View assets owned', 'v'))
     print("{:<30}{}".format('Sell property', 's'))
-    print("{:<30}{}".format('End turn', 'x'))
+    print("{:<30}{}".format('End turn', 'x'), end='\n\n\n')
 
 # display_moves()
 
