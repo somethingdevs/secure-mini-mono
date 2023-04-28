@@ -17,18 +17,18 @@ def player_moves(player, dice_value):
         # print(player.position)
         print(f'You are now at {board.BOARD_TILES[player.position]}')
         print(f'{ board.BOARD_TILES[player.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[player.position]]}', end='\n\n\n')
-        owned = board.BOARD_TILES_INFO[board.BOARD_TILES[player.position]][7]
-        if owned == "False" :
-                price= board.BOARD_TILES_INFO[board.BOARD_TILES[player.position]][2]
-                if player.balance >= price:
-                        player.balance -= price
-                        player.assets_owned.append(board.BOARD_TILES[player.position])
-                        board.BOARD_TILES_INFO['owned'] = True
-                        print(f"{player.username} bought {board.BOARD_TILES[player.position]} for {price} rupees.")
-                else:
-                        print(f"{player.username} has insufficient funds.")
-        else: 
-                print(f"{board.BOARD_TILES[player.position]} is already owned")
+        #owned = board.BOARD_TILES_INFO[board.BOARD_TILES[player.position]][7]
+        #if owned == "False" :
+         #       price= board.BOARD_TILES_INFO[board.BOARD_TILES[player.position]][2]
+          #      if player.balance >= price:
+           #             player.balance -= price
+            #            player.assets_owned.append(board.BOARD_TILES[player.position])
+             #           board.BOARD_TILES_INFO['owned'] = True
+              #          print(f"{player.username} bought {board.BOARD_TILES[player.position]} for {price} rupees.")
+               # else:
+                #        print(f"{player.username} has insufficient funds.")
+        #else: 
+         #       print(f"{board.BOARD_TILES[player.position]} is already owned")
         
 
 
