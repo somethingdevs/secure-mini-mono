@@ -19,11 +19,13 @@ class Player:
         self.position += dice_value
         if self.position > 31:
             self.position = self.position % 31
+            print('Completed round!', end='\n\n')
+            self.add_balance(200)
             self.game_round += 1
         # print(player.position)
         print(f'You are now at {board.BOARD_TILES[self.position]}')
         print(
-            f'{board.BOARD_TILES[self.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[self.position]]}',
+            f'Description - {board.BOARD_TILES_INFO[board.BOARD_TILES[self.position]][0]}',
             end='\n\n\n')
 
     def display_player_details(self):
@@ -49,8 +51,10 @@ class Player:
         pass
 
     def charge_rent(self, tile):
-        rent = board.BOARD_TILES_INFO[tile][4][0]
+        rent = board.BOARD_TILES_INFO[board.BOARD_TILES[tile]][4][0]
+        print(rent)
         self.balance -= rent
+        return rent
 
     def add_balance(self, added_amount):
         self.balance += added_amount
@@ -58,8 +62,16 @@ class Player:
     def reduce_balance(self, reduced_amount):
         self.balance -= reduced_amount
 
+    def check_balance(self, tile):
+        if self.balance > board.BOARD_TILES_INFO[board.BOARD_TILES[tile]][2]:
+            return True
+        else:
+            return False
+
     def go_to_jail(self):
         self.position = 8
+        print('Sent to Jail!', end='\n\n')
+        # self.game_round += 2
 
 
 
