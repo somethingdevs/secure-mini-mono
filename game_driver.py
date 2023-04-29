@@ -83,14 +83,28 @@ while not is_game_over:
                         # Insert non-buyable logic
                         moves.special_cards(current_tile, player)
 
+            # The house and hotel are designed in such a way that only if you step on the tile, you can build them
             # Build a house
             elif game_input.casefold() == 'h':
                 # Insert house logic here
-                pass
+                current_tile = board.BOARD_TILES[player.position]
+                house_cost = board.BOARD_TILES_INFO[current_tile][4][1]
+
+                if player.balance > house_cost:
+                    player.build_house(current_tile)
+                else:
+                    print('Insufficient Funds!')
 
             # Build a hotel
             elif game_input.casefold() == 'f':
                 # Insert hotel logic here
+                current_tile = board.BOARD_TILES[player.position]
+                house_cost = board.BOARD_TILES_INFO[current_tile][4][1]
+
+                if player.balance > house_cost:
+                    player.build_house(current_tile)
+                else:
+                    print('Insufficient Funds!')
                 pass
 
             # View assets owned
@@ -107,8 +121,14 @@ while not is_game_over:
             # Sell property
             elif game_input.casefold() == 's':
                 # Insert sell property logic here
-                pass
-
+                if player.assets_owned:
+                    [print(i, end=', ') for i in player.assets_owned]
+                    print(end='\n\n')
+                    sell_property = int(input(f'Enter 0 - {len(player.assets_owned)-1}: '))
+                    player.sell_tile(player.assets_owned[sell_property])
+                    print(end='\n\n')
+                else:
+                    print('No assets owned!')
             # End turn
             elif game_input.casefold() == 'x':
                 if has_rolled:
@@ -130,7 +150,7 @@ while not is_game_over:
 # Displays game stats at the end
 for player in player_list:
     player.display_player_details()
-    print('------------------------')
+    print('------------------------', end='\n')
 
 # Insert winner logic
 

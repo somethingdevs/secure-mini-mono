@@ -43,11 +43,24 @@ class Player:
         self.assets_owned.remove(tile)
         price = board.BOARD_TILES_INFO[tile][2]
         self.balance = self.balance + price
+        print(f'Property Sold! New Balance - {self.balance}')
 
-    def build_house(self, asset):
+    def build_house(self, tile):
+        if tile in self.assets_owned:
+            self.balance -= board.BOARD_TILES_INFO[tile][5]
+            print(f'House built on {tile}')
+        else:
+            print('Asset is not owned!')
+            return False
         pass
 
-    def build_hotel(self, asset):
+    def build_hotel(self, tile):
+        if tile in self.assets_owned:
+            self.balance -= board.BOARD_TILES_INFO[tile][6]
+            print(f'Hotel built on {tile}')
+        else:
+            print('Asset is not owned!')
+            return False
         pass
 
     def charge_rent(self, tile):
@@ -71,7 +84,7 @@ class Player:
     def go_to_jail(self):
         self.position = 8
         print('Sent to Jail!', end='\n\n')
-        # self.game_round += 2
+        self.game_round += 2
 
 
 
