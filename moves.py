@@ -3,9 +3,9 @@ import board
 import player
 
 # Statically instantiating three players
-player1 = property.Player('Ali', 0, 0, 1500, [], False, False)
-player2 = property.Player('Poorvi', 0, 0, 1500, [], False, False)
-player3 = property.Player('Deep', 0, 0, 1500, [], False, False)
+player1 = player.Player('Ali', 0, 0, 1500, [], False, False)
+player2 = player.Player('Poorvi', 0, 0, 1500, [], False, False)
+player3 = player.Player('Deep', 0, 0, 1500, [], False, False)
 
 player_list = [player1, player2, player3]
 
