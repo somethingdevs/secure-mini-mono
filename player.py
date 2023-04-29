@@ -3,10 +3,6 @@ from typing import List, Any
 import board
 
 
-def property_cards():
-    pass
-
-
 class Player:
 
     def __init__(self, username, position: int, game_round: int, balance: int, assets_owned: List[Any], is_jail: bool,
@@ -19,11 +15,52 @@ class Player:
         self.is_jail = is_jail
         self.is_bankrupt = is_bankrupt
 
+    def player_moves(self, dice_value):
+        self.position += dice_value
+        if self.position > 31:
+            self.position = self.position % 31
+            self.game_round += 1
+        # print(player.position)
+        print(f'You are now at {board.BOARD_TILES[self.position]}')
+        print(
+            f'{board.BOARD_TILES[self.position]} Details {board.BOARD_TILES_INFO[board.BOARD_TILES[self.position]]}',
+            end='\n\n\n')
+
     def display_player_details(self):
         print(f'Name - {self.username}')
         print(f'Pos - {self.position}')
         print(f'Balance - ${self.balance}')
         print(f'Assets owned - {self.assets_owned}')
+
+    def buy_tile(self, tile):
+        self.assets_owned.append(tile)
+        price = board.BOARD_TILES_INFO[tile][2]
+        self.balance = self.balance - price
+
+    def sell_tile(self, tile):
+        self.assets_owned.remove(tile)
+        price = board.BOARD_TILES_INFO[tile][2]
+        self.balance = self.balance + price
+
+    def build_house(self, asset):
+        pass
+
+    def build_hotel(self, asset):
+        pass
+
+    def charge_rent(self, tile):
+        rent = board.BOARD_TILES_INFO[tile][4][0]
+        self.balance -= rent
+
+    def add_balance(self, added_amount):
+        self.balance += added_amount
+
+    def reduce_balance(self, reduced_amount):
+        self.balance -= reduced_amount
+
+    def go_to_jail(self):
+        self.position = 8
+
 
 
 # Creating and accessing players details, need to change this to connected players later

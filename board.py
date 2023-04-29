@@ -107,7 +107,6 @@ def display_moves():
     print("{:<30}{}".format('Roll dice', 'r'))
     print("{:<30}{}".format('Build a house', 'h'))
     print("{:<30}{}".format('Build a hotel', 'f'))
-    print("{:<30}{}".format('Trade with players', 't'))
     print("{:<30}{}".format('View assets owned', 'v'))
     print("{:<30}{}".format('Sell property', 's'))
     print("{:<30}{}".format('End turn', 'x'), end='\n\n\n')
