@@ -12,9 +12,9 @@ import database.db_connect
 # player_list = [player1, player2, player3]
 
 get_players = database.db_connect
-
-board_query = 'select * from property_list'
-board = get_players.select_all_query(board_query)
+#
+# board_query = 'select * from property_list'
+# board = get_players.select_all_query(board_query)
 
 
 
@@ -37,6 +37,36 @@ for i in range(len(player_details)):
 is_game_over = False
 correct_move = True
 turn_ended = False
+
+def special_cards(tile, player):
+    if tile == 'Start/GO':
+        player.add_balance(200)
+        print('Collected $200!')
+
+    elif tile == 'Visiting Jail':
+        pass
+
+    elif tile == 'Free Parking':
+        pass
+
+    elif tile == 'GO TO JAIL':
+        player.go_to_jail()
+
+    elif tile == 'Income Tax':
+        player.reduce_balance(200)
+        print('Income Tax of 200 has been deducted. Remove this print statement at the end')
+
+
+def game_winner(player_list):
+    highest_balance = 0
+    winner = None
+
+    for player in player_list:
+        if player.balance > highest_balance:
+            highest_balance = player.balance
+            winner = player
+
+    return winner
 
 
 def game_start():
@@ -175,32 +205,4 @@ for player in player_list:
 
 # Insert winner logic
 
-def special_cards(tile, player):
-    if tile == 'Start/GO':
-        player.add_balance(200)
-        print('Collected $200!')
 
-    elif tile == 'Visiting Jail':
-        pass
-
-    elif tile == 'Free Parking':
-        pass
-
-    elif tile == 'GO TO JAIL':
-        player.go_to_jail()
-
-    elif tile == 'Income Tax':
-        player.reduce_balance(200)
-        print('Income Tax of 200 has been deducted. Remove this print statement at the end')
-
-
-def game_winner(player_list):
-    highest_balance = 0
-    winner = None
-
-    for player in player_list:
-        if player.balance > highest_balance:
-            highest_balance = player.balance
-            winner = player
-
-    return winner
