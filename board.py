@@ -1,5 +1,4 @@
 import random
-import pprint
 
 
 # Global variables
@@ -15,7 +14,7 @@ def dice_roll(player):
     return total_dice
 
 
-# class board:
+# models board:
 #     testVar = 20
 
 moves = {
@@ -153,15 +152,6 @@ BOARD_TILES_INFO = {
         "The financial capital of India known for its vibrant culture, Bollywood film industry, and landmarks such as the Gateway of India and Marine Drive.",
         "Dark Blue", 400, 200, [50, 200, 600, 1400], 200, 200, False]
 }
-
-
-def game_over(player):
-    if player.game_round == 15 or player.balance <= 0:
-        print('Game Over!')
-        return True
-
-    else:
-        return False
 
 
 # Moves list, change this to display on the web page

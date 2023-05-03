@@ -3,14 +3,10 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-import aiofiles
 from move import router as MoveRouter
 from fastapi.templating import Jinja2Templates
 
 # Game Logic import statements
-import board
-import player
-import game_driver
 from utils.driver import process_move
 
 app = FastAPI()

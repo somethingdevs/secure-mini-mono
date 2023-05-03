@@ -1,19 +1,18 @@
 from typing import List, Any
+import mysql.connector
 
 import board
 
 
 class Player:
-
-    def __init__(self, username, position: int, game_round: int, balance: int, assets_owned: List[Any], is_jail: bool,
-                 is_bankrupt: bool):
+    def __init__(self, room_id, player_id, username):
+        self.room_id = room_id
+        self.player_id = player_id
         self.username = username
-        self.position = position
-        self.game_round = game_round
-        self.balance = balance
-        self.assets_owned = assets_owned  # can have something like [number of assets owned, name of assets, price]
-        self.is_jail = is_jail
-        self.is_bankrupt = is_bankrupt
+        self.position = 0
+        self.game_round = 0
+        self.balance = 1500
+        self.assets_owned = []
 
     def player_moves(self, dice_value):
         self.position += dice_value
@@ -86,14 +85,32 @@ class Player:
         print('Sent to Jail!', end='\n\n')
         self.game_round += 2
 
+#
+# db = mysql.connector.connect(
+#     host='localhost',
+#     user='root',
+#     passwd='secureminimono',
+#     database='secure_mini_mono'
+# )
+#
+# cursor = db.cursor()
+#
+# cursor.execute('select * from player where player_id = 1')
+#
+# player_list = []
+#
+# for i in cursor:
+#     player_list.append(Player(i[0], i[1], 'Ali'))
+#
+# print(player_list[0].display_player_details())
 
 
 # Creating and accessing players details, need to change this to connected players later
-player1 = Player('Ali', 0, 0, 1500, [], False, False)
-player2 = Player('Poorvi', 0, 0, 1500, [], False, False)
-player3 = Player('Deep', 0, 0, 1500, [], False, False)
+# player1 = Player('Ali', 0, 0, 1500, [], False, False)
+# player2 = Player('Poorvi', 0, 0, 1500, [], False, False)
+# player3 = Player('Deep', 0, 0, 1500, [], False, False)
 
-player_list = [player1, player2, player3]
+# player_list = [player1, player2, player3]
 
 # print(player1.position)
 # player1.position += board.dice_roll(player1.username)
