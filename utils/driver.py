@@ -1,6 +1,6 @@
 import board
 from models import player
-import database.db_connect
+import database.Dao
 
 players_query = 'select room_id, player_id from player where room_id = %s'
 players_params = (1,)

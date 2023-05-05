@@ -4,16 +4,16 @@ from board import display_moves, dice_roll
 from models.player import Player 
 import database.Dao as databaseObj
 import database.DaoConstants as DaoConst
-
+from utils.loging import log
 
 class monopoly_Instance:
     def __init__(self,roomID,player_list):
         self.db=databaseObj.Dao()
         self.daoConst=DaoConst.DaoConstants()
         self.player_list=player_list
-        print( self.player_list[0].printPlayer())
         self.is_game_over= False
         self.tiles= self.db.select_all_query( self.daoConst.GET_PROPERTY_LIST,True)
+        self.logger=log()
 
     def special_cards(self,tile, player):
         if tile == 'Start/GO':
@@ -31,6 +31,7 @@ class monopoly_Instance:
 
         elif tile == 'Income Tax':
             player.reduce_balance(200)
+            self.logger.log_info('Income Tax of 200 has been deducted. Remove this print statement at the end')
             print('Income Tax of 200 has been deducted. Remove this print statement at the end')
 
 
@@ -55,7 +56,10 @@ class monopoly_Instance:
             for player in self.player_list:
 
                 # Displays player details
-                print(f'{player.username}\'s turn ')
+                message= "%s's turn" % player.username
+                self.logger.log_info(message)
+                self.db.insertion_query(self.daoConst.INSERT_LOG, (message.replace("'","''") , player.room_id))
+
                 print(f'Cash - {player.balance}\t Rounds played - {player.game_round}\t Player position - {player.position}')
                 print('----------------------------------------------------------------')
 
@@ -67,7 +71,7 @@ class monopoly_Instance:
                 # Move validation
                 while not turn_ended:
                     game_input = input('Enter your choice: ') # insert in log and display.
-
+                   # game_input = await request.body()
                     # Roll dice
                     if game_input.casefold() == 'r':
                         if not has_rolled:

@@ -2,10 +2,11 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
 #from move import router as MoveRouter
 from fastapi.templating import Jinja2Templates
-
+from database.Dao import Dao 
+from database.DaoConstants import DaoConstants 
 # Game Logic import statements
 from utils.driver import process_move
 
@@ -28,13 +29,16 @@ async def submit_move(move: Move):
     result = process_move(move.move)
     return {"message": result}
 
-"""
-
-@app.get("/", response_class=HTMLResponse)
-async def serve_homepage(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-"""
+@app.get("/getLogs", response_class=JSONResponse)
+async def get_logs(request: Request, room_id: int):
+    try:
+        db=Dao()
+        daoConst=DaoConstants()
+        logs = db.select_all_query(daoConst.SELECT_LOGS_BY_ROOM_ID, (room_id,))
+        log_messages = [log[0] for log in logs]
+        return "\n".join(log_messages)
+    except Exception as e:
+        return f"An exception occurred: {str(e)}"
 
 # How to replace stuff in the output area
 # content = content.replace('<textarea id="output" readonly></textarea>', f'<textarea id="output" readonly>{moves}</textarea>')

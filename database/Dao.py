@@ -75,7 +75,13 @@ class Dao:
                                     database=DaoConstants.DATABASE)
             print(query)
             insertion_cursor = self.db.cursor()
-            insertion_cursor.execute(query, values)
+            if(len(values)>1):
+                print(values[0],values[1])
+                formatted_query = query % (values[0],values[1])
+                print(formatted_query)
+                insertion_cursor.execute(formatted_query)
+            else:
+                insertion_cursor.execute(query, values)
             self.db.commit()
         except Exception as e:
             print("An exception occurred:", str(e))
