@@ -21,10 +21,11 @@ class Dao:
             print(query)
             if(len(values)>1):
                 select_cursor.execute(query, (values[0],values[1]))
-                rows = select_cursor.fetchone()
+                
             else:
                 select_cursor.execute(query, values)
-                rows = select_cursor.fetchall()
+            
+            rows = select_cursor.fetchall()
        except Exception as e:
             print("An exception occurred:", str(e))
         

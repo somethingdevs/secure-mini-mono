@@ -80,22 +80,18 @@ class monopoly_Instance:
 
                             #Execute to get the tile_owner
                             tileInput=[current_tile.tile_id,player.room_id]
-                            #tileInput
+                            #tileOWNERInput
                             tileOWNERInput=self.db.select_query( self.daoConst.GET_PROPERTY_OWNER,tileInput)
-                            print(tileOWNERInput)
-                            tile_owner=Player(room_id=tileOWNERInput[0], player_id= tileOWNERInput[1],username= tileOWNERInput[2], money=tileOWNERInput[3],position =tileOWNERInput[4],game_round= tileOWNERInput[5])
-                             
-                            
-                            #The owner is the same player, write query to get owner of current tile
-                            print('PLAYER_TILE OWNER' , type(tile_owner))
-                            print('Player type is:',type(player))
-
-
+                            print('This is tile owner',tileOWNERInput)
+                            tile_owner=None
+                            if tileOWNERInput :
+                                tile_owner = Player(room_id=tileOWNERInput[0][0], player_id=tileOWNERInput[0][1], username=tileOWNERInput[0][2], money=tileOWNERInput[0][3], position=tileOWNERInput[0][4], game_round=tileOWNERInput[0][5])
+                        
                             if  current_tile.cost != None :
                                 if  tile_owner is None:
                                     print('The current tile owner is None')
                                     #BUYs LOGIC
-                                    is_buy = input(f'Buy {current_tile}? [Y/N]')
+                                    is_buy = input(f'Buy {current_tile.tile_name}? [Y/N]')
 
                                     if is_buy.casefold() == 'y':
                                         # Check for balance
