@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from move import router as MoveRouter
+#from move import router as MoveRouter
 from fastapi.templating import Jinja2Templates
 
 # Game Logic import statements
@@ -28,11 +28,13 @@ async def submit_move(move: Move):
     result = process_move(move.move)
     return {"message": result}
 
+"""
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_homepage(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+"""
 
 # How to replace stuff in the output area
 # content = content.replace('<textarea id="output" readonly></textarea>', f'<textarea id="output" readonly>{moves}</textarea>')
