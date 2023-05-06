@@ -1,5 +1,9 @@
 # This file gives a short run of how the db stuff works and how things are set up
-
+TAKS LEFT
+Replace harcode with db fetch calls in player class .
+Remove the board class 
+Add login and register backend code.
+Add create room and join room
 
 # Insert queries for property_list
 query_list = [

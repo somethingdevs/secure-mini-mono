@@ -5,13 +5,13 @@ import board
 
 
 class Player:
-    def __init__(self, room_id, player_id, username):
+    def __init__(self, room_id, player_id, username,money,position,game_round):
         self.room_id = room_id
         self.player_id = player_id
         self.username = username
-        self.position = 0
-        self.game_round = 0
-        self.balance = 1500
+        self.position =position
+        self.game_round = game_round
+        self.balance = money
         self.assets_owned = []
 
     def player_moves(self, dice_value):
@@ -84,7 +84,11 @@ class Player:
         self.position = 8
         print('Sent to Jail!', end='\n\n')
         self.game_round += 2
+    
+    def printPlayer(self):
+        print(vars(self))
 
+        
 #
 # db = mysql.connector.connect(
 #     host='localhost',

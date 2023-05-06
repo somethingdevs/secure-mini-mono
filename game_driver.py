@@ -86,16 +86,16 @@ def game_start():
 
             # Move validation
             while not turn_ended:
-                game_input = input('Enter your choice: ')
+                game_input = input('Enter your choice: ') # insert in log and display.
 
                 # Roll dice
                 if game_input.casefold() == 'r':
                     if has_rolled:
-                        print('You have already rolled the dice')
+                        print('You have already rolled the dice')# insert in log and display.
                         continue
                     else:
                         has_rolled = True
-                        player.player_moves(dice_roll(player))
+                        player.player_moves(dice_roll(player)) #diceroll rolls 2 dices for a player and moves them
 
                         current_tile = board.BOARD_TILES[player.position]
 
@@ -120,16 +120,18 @@ def game_start():
 
                         # Need to insert a special check for non-acquirable assets
 
-                        if asset_owned == False and non_buyable == False:
+                        print('IS asset owned:',asset_owned,'IS NON BUYABLE',non_buyable)
+                        if  non_buyable == False:
+                            if asset_owned == False:
 
-                            is_buy = input(f'Buy {current_tile}? [Y/N]')
+                                is_buy = input(f'Buy {current_tile}? [Y/N]')
 
-                            if is_buy.casefold() == 'y':
-                                # Check for balance
-                                if player.check_balance(current_tile):
-                                    player.buy_tile(current_tile)
+                                if is_buy.casefold() == 'y':
+                                    # Check for balance
+                                    if player.check_balance(current_tile):
+                                        player.buy_tile(current_tile)
 
-                        if non_buyable == True:
+                        else :
                             # Insert non-buyable logic
                             special_cards(current_tile, player)
 
