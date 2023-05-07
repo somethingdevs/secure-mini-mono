@@ -38,7 +38,7 @@ class room:
                                 # Modify this insert to fetch position
                                 player_list.append(player.Player(room_id=player_details[i][0], player_id= player_details[i][1],username= usernames[i][0],
                                                                  money=player_details[i][2],game_round=player_details[i][5],position= player_details[i][4]))
-                print('Printing list:',player_list[0].printPlayer())
+                print('Printing list:', player_list[0].print_player())
 
                 m=monopoly.monopoly_Instance(roomID=1,player_list=player_list)  # need to get roomid over here from web
                 m.game_start()

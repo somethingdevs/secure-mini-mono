@@ -1,6 +1,5 @@
 import board
-from board import display_moves, dice_roll
-from utils.driver import game_over
+from utils.driver import game_over, dice_roll, moves_list
 from models import player
 import database.db_connect
 
@@ -79,7 +78,7 @@ def game_start():
             print(f'Cash - {player.balance}\t Rounds played - {player.game_round}\t Player position - {player.position}')
             print('----------------------------------------------------------------')
 
-            display_moves()
+            moves_list()
 
             turn_ended = False
             has_rolled = False

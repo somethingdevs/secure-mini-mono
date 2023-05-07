@@ -1,17 +1,4 @@
-import random
-
-
 # Global variables
-
-
-def dice_roll(player):
-    first_dice = random.randint(1, 6)
-    second_dice = random.randint(1, 6)
-    total_dice = first_dice + second_dice
-    # if first_dice == second_dice:
-        # print(f'{player.username} rolled doubles of {first_dice}!')  # Change player name
-    # print(f'{player.username} rolled {total_dice}', end='\n\n')  # Change player name
-    return total_dice
 
 
 # models board:
@@ -155,16 +142,6 @@ BOARD_TILES_INFO = {
 
 
 # Moves list, change this to display on the web page
-def display_moves():
-    # Display player stats(name, cash in hand, rounds played, position)
-    print('-------------Moves-------------')
-
-    print("{:<30}{}".format('Roll dice', 'r'))
-    print("{:<30}{}".format('Build a house', 'h'))
-    print("{:<30}{}".format('Build a hotel', 'f'))
-    print("{:<30}{}".format('View assets owned', 'v'))
-    print("{:<30}{}".format('Sell property', 's'))
-    print("{:<30}{}".format('End turn', 'x'), end='\n\n\n')
 
 # display_moves()
 
