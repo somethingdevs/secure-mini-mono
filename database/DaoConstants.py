@@ -1,8 +1,11 @@
 class DaoConstants:
    #Always list the columns u wanna fetch do not use * in any case
    GET_PLAYERS_IN_ROOM = 'select room_id, player_id, player_balance, player_prop_id, player_position, player_round from player where room_id = %s; '
-   ADD_PLAYER_IN_ROOM=''
-   CREATE_ROOM=''
+   ADD_PLAYER_IN_ROOM='' # This should have game_round = 0, position = 0, balance = 1500 and there is no need for assets in the player table. Write the query accordingly
+   CREATE_ROOM = ''
+   JOIN_ROOM = ''
+   CREATE_USER = ''
+   FETCH_USER = ''
    #Always list the columns u wanna fetch do not use * in any case
    BUY_PROPERTY=''#room id player id in player table
    UPDATE_MONEY=''#room id player id player table

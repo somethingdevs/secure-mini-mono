@@ -1,7 +1,7 @@
 import board
 from utils.driver import game_over, dice_roll, moves_list
 from models import player
-import database.db_connect
+import database.Dao
 
 # Statically instantiating three players
 # player1 = player.Player('Ali', 0, 0, 1500, ['Goa', 'Pondicherry', 'Rishikesh', 'Nainital', 'Gulmarg', 'Udaipur', 'Raipur', 'Darjeeling', 'Vijayawada', 'Waynad'], False, False)

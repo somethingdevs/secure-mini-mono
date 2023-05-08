@@ -1,13 +1,15 @@
 from typing import List, Any
 import mysql.connector
 
+# Add an insert query at the end of all of these functions before something is being returned
+
 
 class Player:
     def __init__(self, room_id, player_id, username,money,position,game_round):
         self.room_id = room_id
         self.player_id = player_id
         self.username = username
-        self.position =position
+        self.position = position
         self.game_round = game_round
         self.balance = money
         self.assets_owned = []
@@ -33,6 +35,8 @@ class Player:
         self.assets_owned.append(tile.tile_name)
         price = tile.cost
         self.balance = self.balance - price
+        print(f'{tile.tile_name} bought!')
+
 
     def sell_tile(self, tile):
         # Removing name of the tile from list of assets owned
