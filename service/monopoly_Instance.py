@@ -44,6 +44,7 @@ class monopoly_Instance:
                 highest_balance = player.balance
                 winner = player
         #Write a dao stuff for updating winner for the room
+        # something like update table room set winner = (subquery of the guy that won idk)
         return winner
 
 
@@ -115,6 +116,8 @@ class monopoly_Instance:
                                         # Check for balance
                                         if player.check_balance(current_tile):
                                             player.buy_tile(current_tile)
+                                            self.db.insertion_query(self.daoConst.BUY_PROPERTY,
+                                                                    (player.room_id, player.player_id, current_tile.tile_id))
                                             # insert message that says tile bought
                                             # message = '%s bought for %s' % (current_tile.tile_name,current_tile.cost)
                                         else:
@@ -210,13 +213,19 @@ class monopoly_Instance:
                         if player.assets_owned:
                             [print(i, end=', ') for i in player.assets_owned]
                             print(end='\n\n')
-                            sell_property = int(input(f'Enter 0 - {len(player.assets_owned)-1}: '))
-                            player.sell_tile(player.assets_owned[sell_property])
+                            sell_input = int(input(f'Enter 0 - {len(player.assets_owned)}: ')) - 1
+                            message = '%s' % player.assets_owned[sell_input]
+                            selling_property_id = self.db.select_query(self.daoConst.GET_PROPERTY_FROM_LIST, (message, ))
+                            current_tile = self.tiles[selling_property_id[0][0]]
+                            sell_property = player.sell_tile(current_tile)
+                            self.db.insertion_query(self.daoConst.SELL_PROPERTY, (player.room_id, player.player_id, sell_property))
                             print(end='\n\n')
+
                         else:
                             print('No assets owned!')
                             message = 'No assets owned!'
                             self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
+
                     # End turn
                     elif game_input.casefold() == 'x':
                         if has_rolled:
@@ -236,7 +245,13 @@ class monopoly_Instance:
                         message = 'Error! Incorrect Input'
                         self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
 
-            # Update player details in the table at the end of every round
+
+                # Update player details in the table at the end of every round
+                self.db.insertion_query(self.daoConst.UPDATE_EVERYTHING, (player.balance, player.position, player.game_round, player.room_id, player.player_id))
+
+                message = 'Round end! Player details updated'
+                self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
+
 
             # Game over condition
             self.is_game_over = self.game_over(player)
@@ -246,19 +261,19 @@ class monopoly_Instance:
 
 
     # Displays game stats at the end
-    def getGameStats(self):
+    # Need to display what name of the player, number of wins, number of losses and
+    def game_end_player_details(self):
         for player in self.player_list:
-            player.display_player_details()
-            print('------------------------', end='\n')
+            pass
 
-    # Display logs?
+    # Display logs of the game?
 
     #Check if 15 rounds are reached
-    def game_over(self,player):
+    def game_over(self, player):
         if player.game_round == 15 or player.balance <= 0:
             print('Game Over!')
+            # Insert some logic and DB query that makes room inactive and updates the winner of the room
             return True
-
         else:
             return False
 

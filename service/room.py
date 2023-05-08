@@ -43,4 +43,4 @@ class room:
                 m=monopoly.monopoly_Instance(roomID=1,player_list=player_list)  # need to get roomid over here from web
                 m.game_start()
                
-                m.getGameStats()
+                m.game_end_player_details()

@@ -76,7 +76,7 @@ class Dao:
             insertion_cursor = self.db.cursor()
             if(len(values)>1):
                 print(values[0],values[1])
-                formatted_query = query % (values[0],values[1])
+                formatted_query = query % values
                 print(formatted_query)
                 insertion_cursor.execute(formatted_query)
             else:

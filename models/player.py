@@ -40,10 +40,11 @@ class Player:
 
     def sell_tile(self, tile):
         # Removing name of the tile from list of assets owned
-        self.assets_owned.remove(tile.tile_name)
         price = tile.cost / 2
         self.balance = self.balance + price
         print(f'Property Sold! New Balance - {self.balance}')
+        self.assets_owned.remove(tile.tile_name)
+        return tile.tile_id
 
     def build_house(self, tile):
         if tile in self.assets_owned:
