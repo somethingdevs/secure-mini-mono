@@ -7,10 +7,13 @@ import time
 class room:
         def __init__(self) -> None:
                 self.dbRoom=databaseObj.Dao()
-                self.daoConstRoom=DaoConstRoom.DaoConstants() 
-                self.roomID=1   # need to make this from website input
+                self.daoConstRoom=DaoConstRoom.DaoConstants()
+                self.roomID = 1
+                # self.roomID = room_id
+                # self.roomID=self.dbRoom.insertion_query(self.daoConstRoom.JOIN_ROOM,(room_id, 'ACTIVE'))   # need to make this from website input
         #insert logic to wait for players joining this
-        #as a player joins insert in player table 
+        #as a player joins insert in player table
+
         '''
                 as a player joins insert into room and player table with all values;
 
@@ -21,6 +24,7 @@ class room:
                 usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (self.roomID,))
                 print(usernames)
                 player_details=[]
+                player_property_details = []
                 
                 while True:
                         if (len(player_details)>=4):
@@ -30,17 +34,22 @@ class room:
                                 print('Waiting for players to join..........')
                                 time.sleep(5)
                                 player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (self.roomID,))
-                        
+
                 #print('Printing list:',player_details[0].printPlayer())
                 player_list=[]
       
                 for i in range(len(player_details)):
                                 # Modify this insert to fetch position
-                                player_list.append(player.Player(room_id=player_details[i][0], player_id= player_details[i][1],username= usernames[i][0],
-                                                                 money=player_details[i][2],game_round=player_details[i][5],position= player_details[i][4]))
-                print('Printing list:',player_list[0].printPlayer())
 
-                m=monopoly.monopoly_Instance(roomID=1,player_list=player_list)  # need to get roomid over here from web
+                                # player_property_details.append(self.dbRoom.select_query(self.daoConstRoom.GET_PROPERTY_FROM_PLAYER_OWNED,
+                                #                                                    (player_details[i][0],
+                                #                                                     player_details[i][1])))
+
+                                # print('this do be', player_property_details)
+                                player_list.append(player.Player(room_id=player_details[i][0], player_id=player_details[i][1], username=usernames[i][0],
+                                                                 money=player_details[i][2], game_round=player_details[i][5], position=player_details[i][4], ))
+                print('Printing list:', player_list[0].print_player())
+
+                m=monopoly.monopoly_Instance(roomID=1, player_list=player_list)  # need to get roomid over here from web
                 m.game_start()
-               
-                m.getGameStats()
+                m.game_end_player_details()

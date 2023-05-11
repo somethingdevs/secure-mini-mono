@@ -2,7 +2,6 @@
 
 from pprint import pprint
 import mysql.connector as conn
-import board
 from database.DaoConstants import DaoConstants
 from models.tile import Tile
 class Dao:
@@ -11,14 +10,14 @@ class Dao:
         None   
 
     # Display with condition FIX: make a single select_query with if else single or multiple to execute fetchOne or fetchAll
-    def select_query(self,query, values):
+    def select_query(self, query, values):
        try: 
             self.db = conn.connect(host=DaoConstants.HOST,
                                     user=DaoConstants.USER,
                                     passwd=DaoConstants.PASSWD,
                                     database=DaoConstants.DATABASE)
             select_cursor = self.db.cursor()
-            print(query)
+            # print(query)
             if(len(values)>1):
                 select_cursor.execute(query, (values[0],values[1]))
                 
@@ -45,7 +44,7 @@ class Dao:
                                     user=DaoConstants.USER,
                                     passwd=DaoConstants.PASSWD,
                                     database=DaoConstants.DATABASE)
-            print(query)
+            # print(query)
             select_all_cursor = self.db.cursor()
             select_all_cursor.execute(query)
             rows = select_all_cursor.fetchall()
@@ -73,11 +72,11 @@ class Dao:
                                     user=DaoConstants.USER,
                                     passwd=DaoConstants.PASSWD,
                                     database=DaoConstants.DATABASE)
-            print(query)
+            # print(query)
             insertion_cursor = self.db.cursor()
             if(len(values)>1):
                 print(values[0],values[1])
-                formatted_query = query % (values[0],values[1])
+                formatted_query = query % values
                 print(formatted_query)
                 insertion_cursor.execute(formatted_query)
             else:

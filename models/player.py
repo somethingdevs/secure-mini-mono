@@ -1,15 +1,15 @@
 from typing import List, Any
 import mysql.connector
 
-import board
+# Add an insert query at the end of all of these functions before something is being returned
 
 
 class Player:
-    def __init__(self, room_id, player_id, username,money,position,game_round):
+    def __init__(self, room_id, player_id, username, money, position, game_round):
         self.room_id = room_id
         self.player_id = player_id
         self.username = username
-        self.position =position
+        self.position = position
         self.game_round = game_round
         self.balance = money
         self.assets_owned = []
@@ -22,10 +22,7 @@ class Player:
             self.add_balance(200)
             self.game_round += 1
         # print(player.position)
-        print(f'You are now at {board.BOARD_TILES[self.position]}')
-        print(
-            f'Description - {board.BOARD_TILES_INFO[board.BOARD_TILES[self.position]][0]}',
-            end='\n\n\n')
+        return self.position
 
     def display_player_details(self):
         print(f'Name - {self.username}')
@@ -34,20 +31,25 @@ class Player:
         print(f'Assets owned - {self.assets_owned}')
 
     def buy_tile(self, tile):
-        self.assets_owned.append(tile)
-        price = board.BOARD_TILES_INFO[tile][2]
+        # Adding name of the tile to the list of assets owned
+        self.assets_owned.append(tile.tile_name)
+        price = tile.cost
         self.balance = self.balance - price
+        print(f'{tile.tile_name} bought!')
+
 
     def sell_tile(self, tile):
-        self.assets_owned.remove(tile)
-        price = board.BOARD_TILES_INFO[tile][2]
+        # Removing name of the tile from list of assets owned
+        price = tile.cost / 2
         self.balance = self.balance + price
         print(f'Property Sold! New Balance - {self.balance}')
+        self.assets_owned.remove(tile.tile_name)
+        return tile.tile_id
 
     def build_house(self, tile):
         if tile in self.assets_owned:
-            self.balance -= board.BOARD_TILES_INFO[tile][5]
-            print(f'House built on {tile}')
+            self.balance -= tile.house_cost
+            print(f'House built on {tile.tile_name}')
         else:
             print('Asset is not owned!')
             return False
@@ -55,16 +57,16 @@ class Player:
 
     def build_hotel(self, tile):
         if tile in self.assets_owned:
-            self.balance -= board.BOARD_TILES_INFO[tile][6]
-            print(f'Hotel built on {tile}')
+            self.balance -= tile.hotel_cost
+            print(f'Hotel built on {tile.tile_name}')
         else:
             print('Asset is not owned!')
             return False
         pass
 
     def charge_rent(self, tile):
-        rent = board.BOARD_TILES_INFO[board.BOARD_TILES[tile]][4][0]
-        print(rent)
+        rent = tile.rent
+        # print(rent)
         self.balance -= rent
         return rent
 
@@ -75,7 +77,7 @@ class Player:
         self.balance -= reduced_amount
 
     def check_balance(self, tile):
-        if self.balance > board.BOARD_TILES_INFO[board.BOARD_TILES[tile]][2]:
+        if self.balance > tile.cost:
             return True
         else:
             return False
@@ -85,7 +87,7 @@ class Player:
         print('Sent to Jail!', end='\n\n')
         self.game_round += 2
     
-    def printPlayer(self):
+    def print_player(self):
         print(vars(self))
 
         
