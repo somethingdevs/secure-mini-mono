@@ -3,6 +3,7 @@ from models.player import Player
 import database.Dao as databaseObj
 import database.DaoConstants as DaoConst
 from utils.loging import log
+from utils.driver import get_moves
 
 class monopoly_Instance:
     def __init__(self, roomID, player_list):
@@ -55,6 +56,8 @@ class monopoly_Instance:
             correct_move= True
             turn_ended = False
             for player in self.player_list:
+                # while player.move == None:
+                #     player.move = driver
 
                 # Displays player details
                 message= "%s's turn" % player.username
@@ -74,7 +77,9 @@ class monopoly_Instance:
 
                 # Move validation
                 while not turn_ended:
-                    game_input = input('Enter your choice: ') # insert in log and display.
+                    # Need to do some input
+                    game_input = input('Enter your choice: ')
+                    # game_input = self.moves
 
                     message = 'Enter your choice - %s' % game_input
                     self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
@@ -97,7 +102,7 @@ class monopoly_Instance:
                             #Execute to get the tile_owner
                             tileInput=[current_tile.tile_id,player.room_id]
                             #tileOWNERInput
-                            tileOWNERInput=self.db.select_query( self.daoConst.GET_PROPERTY_OWNER,tileInput)
+                            tileOWNERInput=self.db.select_query(self.daoConst.GET_PROPERTY_OWNER,tileInput)
                             # print('This is tile owner',tileOWNERInput)
                             tile_owner=None
                             if tileOWNERInput:
@@ -107,6 +112,7 @@ class monopoly_Instance:
                                 if  tile_owner is None:
                                     print('The current tile owner is None')
                                     # Nobody owns the tile, player can buy
+                                    # Need to do some input
                                     is_buy = input(f'Buy {current_tile.tile_name}? [Y/N]')
 
                                     message = 'Buy %s? [Y/N] - %s' % (current_tile.tile_name, is_buy)
@@ -127,7 +133,7 @@ class monopoly_Instance:
 
                                 elif tile_owner.player_id != player.player_id:
                                     # Deduct from current player
-                                    rent = player.charge_rent(player.position)
+                                    rent = player.charge_rent(current_tile)
 
                                     print(f'{tile_owner.username} charges you {rent} as rent')
                                     message = '%s charges you %s as rent' % (tile_owner.username, rent)
@@ -159,13 +165,16 @@ class monopoly_Instance:
 
 
                     # The house and hotel are designed in such a way that only if you step on the tile, you can build them
-                    # Build a house
+                    # If you build a house on a special card or a railway, it will throw an error
                     elif game_input.casefold() == 'h':
                         # Insert house logic here
                         current_tile = self.tiles[player.position]
                         house_cost = current_tile.house_cost
 
-                        if player.balance > house_cost:
+                        if house_cost is None:
+                            print('House cannot be built on a special card or railway')
+
+                        elif player.balance > house_cost:
                             player.build_house(current_tile)
                             message = 'House built!'
                             self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
@@ -214,8 +223,12 @@ class monopoly_Instance:
                             [print(i, end=', ') for i in player.assets_owned]
                             print(end='\n\n')
                             sell_input = int(input(f'Enter 0 - {len(player.assets_owned)}: ')) - 1
+                            message = f'Enter 0 - {len(player.assets_owned) - 1}'
+                            # Need to do some input here
+
+                            self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
                             message = '%s' % player.assets_owned[sell_input]
-                            selling_property_id = self.db.select_query(self.daoConst.GET_PROPERTY_FROM_LIST, (message, ))
+                            selling_property_id = self.db.select_query(self.daoConst.GET_PROPERTY_OWNED, (message, ))
                             current_tile = self.tiles[selling_property_id[0][0]]
                             sell_property = player.sell_tile(current_tile)
                             self.db.insertion_query(self.daoConst.SELL_PROPERTY, (player.room_id, player.player_id, sell_property))
@@ -276,4 +289,5 @@ class monopoly_Instance:
             return True
         else:
             return False
+
 

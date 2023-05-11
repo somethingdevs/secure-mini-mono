@@ -9,19 +9,11 @@ document.getElementById("submit").addEventListener("click", async () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ move }),
-        })
+        });
 
         const result = await response.json();
-        if (move === "x") {
-            outputBox.value += "\n" + result.message;
-            setTimeout(() => {
-                outputBox.value = "";
-            }, 2000); // Clear after 3 seconds
-        } else {
-            outputBox.value += "\n" + JSON.stringify(result);
-        }
-        // inputBox.value = "";
+        outputBox.value += "\n" + result.message.move;
+        move.value = "";
     }
-
 });
 

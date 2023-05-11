@@ -159,3 +159,6 @@ def moves_list():
     print("{:<30}{}".format('View assets owned', 'v'))
     print("{:<30}{}".format('Sell property', 's'))
     print("{:<30}{}".format('End turn', 'x'), end='\n\n\n')
+
+def get_moves():
+    pass

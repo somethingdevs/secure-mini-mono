@@ -5,7 +5,7 @@ import mysql.connector
 
 
 class Player:
-    def __init__(self, room_id, player_id, username,money,position,game_round):
+    def __init__(self, room_id, player_id, username, money, position, game_round):
         self.room_id = room_id
         self.player_id = player_id
         self.username = username
