@@ -2,12 +2,16 @@ class DaoConstants:
    #Always list the columns u wanna fetch do not use * in any case
    GET_PLAYERS_IN_ROOM = 'select room_id, player_id, player_balance, player_prop_id, player_position, player_round from player where room_id = %s; '
    ADD_PLAYER_IN_ROOM=''
+   CREATE_USER="insert into user ( username, email, pass) VALUES ('%s','%s',UNHEX('%s'));"
+   GET_USER="select username,pass from user where email='%s';"
+   GET_EXISTING_USER="SELECT EXISTS (SELECT 1 FROM user WHERE username = '%s' AND email = '%s');"
+
    CREATE_ROOM=''
    #Always list the columns u wanna fetch do not use * in any case
    BUY_PROPERTY=''#room id player id in player table
    UPDATE_MONEY=''#room id player id player table
    UPDATE_WINNER_FOR_ROOM=''#update winner with user id in room table
-   SELECT_LOGS_BY_ROOM_ID='select log_value where room_id= %s'
+   SELECT_LOGS_BY_ROOM_ID='select log_value from logs where room_id= %s;'
    # Might remove this
    GET_USERNAME_FROM_PLAYER = 'SELECT u.username FROM user u JOIN player p ON u.user_id = p.player_id WHERE p.room_id = %s;'
    GET_PROPERTY_LIST='select pl.property_id,pl.property_name,pl.property_description,pl.property_cost,pl.property_rent,pl.property_house_cost,pl.property_hotel_cost,pl.is_property_special from property_list pl;'

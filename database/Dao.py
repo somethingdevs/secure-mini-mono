@@ -20,10 +20,14 @@ class Dao:
             select_cursor = self.db.cursor()
             print(query)
             if(len(values)>1):
-                select_cursor.execute(query, (values[0],values[1]))
-                
-            else:
-                select_cursor.execute(query, values)
+                formatted_query = query % values
+                print(formatted_query)
+                #select_cursor.execute(query, (values[0],values[1]))
+                select_cursor.execute(formatted_query)
+            elif (len(values)==1):
+                formatted_query = query % values
+                print(formatted_query)
+                select_cursor.execute(formatted_query)
             
             rows = select_cursor.fetchall()
        except Exception as e:
@@ -46,6 +50,7 @@ class Dao:
                                     passwd=DaoConstants.PASSWD,
                                     database=DaoConstants.DATABASE)
             print(query)
+            
             select_all_cursor = self.db.cursor()
             select_all_cursor.execute(query)
             rows = select_all_cursor.fetchall()
@@ -76,12 +81,16 @@ class Dao:
             print(query)
             insertion_cursor = self.db.cursor()
             if(len(values)>1):
-                print(values[0],values[1])
-                formatted_query = query % (values[0],values[1])
+                print('in here')
+                formatted_query = query % values
+                print(formatted_query)
+                # Execute the query with all values
+                insertion_cursor.execute(formatted_query)
+            elif(len(values)==1):
+                # Execute the query with the first value only
+                formatted_query = query % values[0]
                 print(formatted_query)
                 insertion_cursor.execute(formatted_query)
-            else:
-                insertion_cursor.execute(query, values)
             self.db.commit()
         except Exception as e:
             print("An exception occurred:", str(e))
