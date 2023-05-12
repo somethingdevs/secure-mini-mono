@@ -2,23 +2,27 @@ import service.monopoly_Instance as monopoly
 import database.Dao as databaseObj
 import database.DaoConstants as DaoConstRoom
 from models import player
+from utils.loging import log
+
 import time
 
 class room:
         def __init__(self) -> None:
                 self.dbRoom=databaseObj.Dao()
                 self.daoConstRoom=DaoConstRoom.DaoConstants() 
-                self.roomID=1   # need to make this from website input
-        #insert logic to wait for players joining this
-        #as a player joins insert in player table 
+                #self.roomID=1   # need to make this from website input
+                #insert logic to wait for players joining this
+                #as a player joins insert in player table 
         '''
                 as a player joins insert into room and player table with all values;
 
                 AS 4 players join execute the below functions
                
         '''
-        def play(self):
-                usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (self.roomID,))
+        def joinRoom(self,roomID,userId):
+                #usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (roomID,))
+                if usernames is None:
+                        return "Room does not exist"
                 print(usernames)
                 player_details=[]
                 
@@ -44,3 +48,25 @@ class room:
                 m.game_start()
                
                 m.getGameStats()
+
+
+        def createRoom(self,emailID):
+                try:
+                        userId=self.dbRoom.select_query( self.daoConstRoom.GET_USER_ID, (emailID))
+                        userId=userId[0][0]
+                        print('userid is, ',userId)
+                        if userId is not None:
+                                print('In here')
+                                maxRoom=self.dbRoom.select_query( self.daoConstRoom.GET_MAX_ROOM,None)
+                                print('In here2')
+                                newroom=maxRoom[0][0]
+                                print(type(newroom))
+                                print("MAX room is:",maxRoom[0][0])
+                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM,(newroom+1,userId))
+                               
+                        else:
+                                print('Cannot create user')
+                                return 'Error creating room'
+
+                except Exception as e:
+                 print('in exceptions',e)
