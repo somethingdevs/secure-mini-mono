@@ -7,12 +7,12 @@ import database.DaoConstants as DaoConst
 from utils.loging import log
 
 class monopoly_Instance:
-    def __init__(self,roomID,player_list):
+    def __init__(self, roomID, player_list):
         self.db=databaseObj.Dao()
         self.daoConst=DaoConst.DaoConstants()
         self.player_list=player_list
         self.is_game_over= False
-        self.tiles= self.db.select_all_query( self.daoConst.GET_PROPERTY_LIST,True)
+        self.tiles= self.db.select_all_query(self.daoConst.GET_PROPERTY_LIST,True)
         self.logger=log()
 
     def special_cards(self,tile, player):
