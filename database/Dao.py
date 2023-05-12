@@ -1,30 +1,31 @@
 
 
 from pprint import pprint
-import mysql.connector as conn
+import pymysql as conn
 import board
 from database.DaoConstants import DaoConstants
 from models.tile import Tile
+
 class Dao:
 
     def __init__(self):
-        None   
+        self.db = conn.connect(host=DaoConstants.HOST,
+                                    user=DaoConstants.USER,
+                                    passwd=DaoConstants.PASSWD,
+                                    database=DaoConstants.DATABASE,
+                                   )
 
     # Display with condition FIX: make a single select_query with if else single or multiple to execute fetchOne or fetchAll
     def select_query(self,query, values):
-       try: 
-            self.db = conn.connect(host=DaoConstants.HOST,
-                                    user=DaoConstants.USER,
-                                    passwd=DaoConstants.PASSWD,
-                                    database=DaoConstants.DATABASE)
+       try:
             select_cursor = self.db.cursor()
             print(query)
-            if(len(values)>1):
+            if len(values)>1:
                 formatted_query = query % values
                 print(formatted_query)
                 #select_cursor.execute(query, (values[0],values[1]))
                 select_cursor.execute(formatted_query)
-            elif (len(values)==1):
+            elif len(values)==1:
                 formatted_query = query % values
                 print(formatted_query)
                 select_cursor.execute(formatted_query)
@@ -48,7 +49,8 @@ class Dao:
             self.db = conn.connect(host=DaoConstants.HOST,
                                     user=DaoConstants.USER,
                                     passwd=DaoConstants.PASSWD,
-                                    database=DaoConstants.DATABASE)
+                                    database=DaoConstants.DATABASE,
+                                    auth_plugin='mysql_native_password')
             print(query)
             
             select_all_cursor = self.db.cursor()

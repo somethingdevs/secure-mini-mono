@@ -2,7 +2,7 @@ class DaoConstants:
    #Always list the columns u wanna fetch do not use * in any case
    GET_PLAYERS_IN_ROOM = 'select room_id, player_id, player_balance, player_prop_id, player_position, player_round from player where room_id = %s; '
    ADD_PLAYER_IN_ROOM=''
-   CREATE_USER="insert into user ( username, email, pass) VALUES ('%s','%s',UNHEX('%s'));"
+   CREATE_USER="insert into user ( username, email, pass) VALUES ('%s','%s','%s');"
    GET_USER="select username,pass from user where email='%s';"
    GET_EXISTING_USER="SELECT EXISTS (SELECT 1 FROM user WHERE username = '%s' AND email = '%s');"
 
@@ -25,4 +25,3 @@ class DaoConstants:
 
    def __init__(self) -> None:
       pass
-   
