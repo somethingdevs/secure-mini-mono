@@ -5,7 +5,7 @@ import mysql.connector
 
 
 class Player:
-    def __init__(self, room_id, player_id, username,money,position,game_round):
+    def __init__(self, room_id, player_id, username, money, position, game_round):
         self.room_id = room_id
         self.player_id = player_id
         self.username = username
@@ -16,6 +16,7 @@ class Player:
 
     def player_moves(self, dice_value):
         self.position += dice_value
+        print("You rolled: ", dice_value)
         if self.position > 31:
             self.position = self.position % 31
             print('Completed round!', end='\n\n')
@@ -36,7 +37,6 @@ class Player:
         price = tile.cost
         self.balance = self.balance - price
         print(f'{tile.tile_name} bought!')
-
 
     def sell_tile(self, tile):
         # Removing name of the tile from list of assets owned
@@ -86,11 +86,11 @@ class Player:
         self.position = 8
         print('Sent to Jail!', end='\n\n')
         self.game_round += 2
-    
+
     def print_player(self):
         print(vars(self))
 
-        
+
 #
 # db = mysql.connector.connect(
 #     host='localhost',

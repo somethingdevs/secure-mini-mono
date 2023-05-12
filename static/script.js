@@ -1,27 +1,20 @@
-document.getElementById("submit").addEventListener("click", async () => {
-    const inputBox = document.getElementById("input");
-    const outputBox = document.getElementById("output");
-    const move = inputBox.value;
-    // console.log(move);
+// Connect to the WebSocket endpoint
+var ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
-    if (move) {
-        const response = await fetch("/submit_move", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ move }),
-        })
+// Define the 'logs' textarea and the 'message' input field
+var logs = document.getElementById('logs');
+var messageInput = document.getElementById('message');
 
-        const result = await response.json();
-        if (move === "x") {
-            outputBox.value += "\n" + result.message;
-            setTimeout(() => {
-                outputBox.value = "";
-            }, 2000); // Clear after 3 seconds
-        } else {
-            outputBox.value += "\n" + JSON.stringify(result);
-        }
-        // inputBox.value = "";
-    }
+// Define the 'send' button
+var sendButton = document.getElementById('send');
 
+// When a message is received from the server, append it to the 'logs' textarea
+ws.onmessage = function(event) {
+    logs.value += event.data + '\n';
+};
+
+// When the 'send' button is clicked, send the content of the 'message' input field to the server
+sendButton.addEventListener('click', function(event) {
+    ws.send(messageInput.value);
+    messageInput.value = '';
 });
-
