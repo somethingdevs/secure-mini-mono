@@ -37,8 +37,6 @@ class Dao:
        else:
             print(rows)
             return rows 
-       finally:
-             self.db.close()
 
 
     # Display all
@@ -49,8 +47,7 @@ class Dao:
             self.db = conn.connect(host=DaoConstants.HOST,
                                     user=DaoConstants.USER,
                                     passwd=DaoConstants.PASSWD,
-                                    database=DaoConstants.DATABASE,
-                                    auth_plugin='mysql_native_password')
+                                    database=DaoConstants.DATABASE)
             print(query)
             
             select_all_cursor = self.db.cursor()
@@ -67,8 +64,6 @@ class Dao:
                 
         except Exception as e:
             print("An exception occurred in select_all_query :", str(e))
-        finally:
-             self.db.close()
 
         return tiles
      
@@ -96,8 +91,6 @@ class Dao:
             self.db.commit()
         except Exception as e:
             print("An exception occurred:", str(e))
-        finally:
-            self.db.close()
 
         # This part just replies with a successful or not, not really important tbh
         if insertion_cursor.rowcount == 1:

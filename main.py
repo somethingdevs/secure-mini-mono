@@ -139,7 +139,7 @@ async def getStats(request: Request, session_data: SessionData = Depends(verifie
         db = Dao()
         daoConst = DaoConstants()
         winner_stats = db.select_query(daoConst.DISPLAY_WIN_LOSS, (session_data.username))
-        print(winner_stats[0][1])
+        #print(winner_stats[0][1])
         return {'stats':winner_stats[0][1]}, 200
     except Exception as e:
         raise Exception("Error stats", e)
@@ -184,24 +184,79 @@ async def login(user: UserLoginIn, response: Response):
     else:
         return {"error": "Invalid login credentials"}, status.HTTP_401_UNAUTHORIZED
 
+@app.get("/maxroom", response_class=JSONResponse, dependencies=[Depends(cookie)])
+async def getMaxRoom(room_id: int, request: Request, session_data: SessionData = Depends(verifier)):
+    try:
+            db = Dao()
+            daoConst = DaoConstants()
+            print('In room')
+            user_id = db.select_query(daoConst.GET_USER_ID, (session_data.username)) 
+            user_id=user_id[0][0]
+            maxRoom= db.select_all_query( daoConst.GET_MAX_ROOM,False)
+            newroom=maxRoom[0][0]
+            print('New Room count',maxRoom)
+            return {'roomId':maxRoom},200
+
+    except Exception as e:
+        return {'msg':"Error fetching max room"},500
 
 
 
-@app.post("/room", response_class=JSONResponse, dependencies=[Depends(cookie)])
-async def roomLogic(request: Request, room_id: str,session_data: SessionData = Depends(verifier)):
+@app.get("/room/{room_id}", response_class=HTMLResponse, dependencies=[Depends(cookie)])
+async def roomLogic(room_id: int, request: Request, session_data: SessionData = Depends(verifier)):
     try:
          db = Dao()
          daoConst = DaoConstants()
+         print('In room')
          user_id = db.select_query(daoConst.GET_USER_ID, (session_data.username))
-         if room_id:
-                isAllowed=room.join_row(room_id, user_id)
+         print(user_id)
+         user_id=user_id[0][0]
+         if room_id  >0:
+                print('In join room')
+                room_instance = room()
+                isAllowed=room_instance.join_row(room_id, user_id)
                 if isAllowed:
+                    print('Allowed go aheasd')
                     return templates.TemplateResponse("index.html", {"request": request})
                 else:
+                    print('Not allowed to join room')
                     return templates.TemplateResponse("room.html", {"request": request}) #back to room
-         else:
-            room.createRoom(user_id)
+         elif room_id==0:
+            room_instance = room()
+            room_instance.createRoom(user_id)
             return templates.TemplateResponse("index.html", {"request": request})
             
     except Exception as e:
-        raise Exception("Error in getting logs")
+        raise Exception("Error in getting logs", e)
+
+
+
+# @app.get("/room/{roomID}", response_class=HTMLResponse, dependencies=[Depends(cookie)])
+# async def get(request: Request, roomID: str,session_data: SessionData = Depends(verifier)):
+#     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/logout")
+async def logout(user: UserLoginIn, response: Response):
+    dao = Dao()
+    _user = dao.select_query(DaoConstants.GET_USER, (user.email))
+
+    # print(_user)
+
+    # Assuming _user[0][0] is the username and it's stored as a string
+    username = _user[0][0]
+    # Assuming _user[0][1] is the hashed password
+    stored_password = _user[0][1]
+
+    # print(verify_password(stored_password, user.password))
+
+    if verify_password(stored_password, user.password):
+        session = uuid4()
+        data = SessionData(username=username)
+        await backend.create(session, data)
+        cookie.attach_to_response(response, session)
+        return {}, status.HTTP_200_OK
+    else:
+        return {"error": "Invalid login credentials"}, status.HTTP_401_UNAUTHORIZED
+
+

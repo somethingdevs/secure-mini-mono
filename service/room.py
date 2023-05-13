@@ -34,7 +34,7 @@ class room:
                         else:
                                 print('Waiting for players to join..........')
                                 time.sleep(5)
-                                player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (self.roomID,))
+                                player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (roomID,))
                         
                 #print('Printing list:',player_details[0].printPlayer())
                 player_list=[]
@@ -51,9 +51,10 @@ class room:
                 m.getGameStats()
 
         def join_row(self, room_id: int, user_id: int):
-
+                print('Player joined')
+                user_id=user_id[0][0]
                 if not room_id or not user_id:
-                        player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (self.roomID,))
+                        player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (room_id,))
                         if len(player_details) >=4 :
                                 return False
                         else:
@@ -68,18 +69,12 @@ class room:
                 
 
 
-        def createRoom(self,userId):
+        def createRoom(self,userId,room_id):
                 try:
-                        
                         print('userid is, ',userId)
                         if userId is not None:
                                 print('In here')
-                                maxRoom=self.dbRoom.select_query( self.daoConstRoom.GET_MAX_ROOM,None)
-                                print('In here2')
-                                newroom=maxRoom[0][0]
-                                print(type(newroom))
-                                print("MAX room is:",maxRoom[0][0])
-                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM,(newroom+1,userId))
+                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM,(room_id,userId,'ACTIVE','NULL'))
                                
                         else:
                                 print('Cannot create user')

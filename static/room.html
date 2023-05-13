@@ -78,14 +78,8 @@
 function joinRoom()
 { 
   console.log("IN JOIN ROOM");
-  //const nameInput = document.createElement("input");
-  
-  //nameInput.type = "hidden";
-  //nameInput.name = "name";
-  //nameInput.value = playerName;
-  //roomForm.appendChild(nameInput);
 
-  roomId=document.getElementById('roomID');
+  roomId=document.getElementById('roomID').value;
 
 
   const url = "/room/" + roomId;
@@ -96,12 +90,11 @@ function joinRoom()
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      name: playerName
     })
   })
   .then(response => {
     console.log(response);
-    //window.location.href = response.url;
+    window.location.href = response.url;
   })
   .catch(error => {
     console.error('Error:', error);
@@ -112,14 +105,9 @@ function joinRoom()
 
 function createRoom() {
   console.log("IN CREATE ROOM");
-  //const nameInput = document.createElement("input");
-  //nameInput.type = "hidden";
-  //nameInput.name = "name";
-  //nameInput.value = playerName;
-  //roomForm.appendChild(nameInput);
 
-  const url = "/room";
-
+  roomId=document.getElementById('roomID').value;
+  const url = "/room/"+ 0;
   fetch(url, {
     method: 'POST',
     headers: {

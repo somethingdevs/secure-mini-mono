@@ -10,9 +10,10 @@ class DaoConstants:
                        "FROM room GROUP BY room_player) wl ON u.user_id = wl.room_player WHERE u.username = '%s';  "  
    # should display number of wins and losses(total games - wins) of all playeres
    #CREATE_ROOM = ''
-   CREATE_ROOM="insert into room (room_player, room_status, room_winner) VALUES('%s', '%s', '%s')"
+   CREATE_ROOM="insert into room (room_id,room_player, room_status, room_winner) VALUES(%s,%s, '%s', %s)"
    #Always list the columns u wanna fetch do not use * in any case
    # Always list the columns u wanna fetch do not use * in any case
+   GET_MAX_ROOM='select max(room_id) from room;'
    GET_PROPERTY_FROM_LIST = 'select property_id from  property_list where property_name = %s'
    BUY_PROPERTY = 'INSERT INTO player_property VALUES (%s, %s, %s);'  # room id player id in player table
    SELL_PROPERTY = 'DELETE FROM player_property WHERE room_id = %s AND player_id = %s AND property_id = %s'
@@ -25,7 +26,7 @@ class DaoConstants:
                   " JOIN room ON logs.room_id = room.room_id"\
                   " JOIN user ON room.room_player = user.user_id"\
                   " WHERE user.username = '%s';"
-   GET_USER_ID='select user_id from user where username=''%s'''
+   GET_USER_ID='select user_id from user where username="%s"'
    # Might remove this
    GET_USERNAME_FROM_PLAYER = 'SELECT u.username FROM user u JOIN player p ON u.user_id = p.player_id WHERE p.room_id = %s;'
    GET_PROPERTY_LIST='select pl.property_id,pl.property_name,pl.property_description,pl.property_cost,pl.property_rent,pl.property_house_cost,pl.property_hotel_cost,pl.is_property_special from property_list pl;'
