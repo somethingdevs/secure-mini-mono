@@ -2,7 +2,6 @@
 
 from pprint import pprint
 import pymysql as conn
-import board
 from database.DaoConstants import DaoConstants
 from models.tile import Tile
 

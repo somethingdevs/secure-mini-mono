@@ -1,30 +1,30 @@
-# FastAPI import statements
+# Standard library imports
 from uuid import UUID, uuid4
-from pydantic import BaseModel
-from fastapi import FastAPI, Request, Response, status, Depends,WebSocket
-from fastapi_sessions.backends.implementations import InMemoryBackend
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
-from fastapi.responses import RedirectResponse
 
-# from move import router as MoveRouter
-from fastapi.templating import Jinja2Templates
-from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
-from database.Dao import Dao
-from database.DaoConstants import DaoConstants
-from service.userHandle import UserHandle
-from models.user import User
+import uvicorn
+# Third-party libraries
+from fastapi import FastAPI, Request, WebSocket, Response, status, Depends
 from fastapi.exceptions import RequestValidationError, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.responses import HTMLResponse
-from typing import List
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi_sessions.backends.implementations import InMemoryBackend
+from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
+from pydantic import BaseModel
+from typing import List
+
+# Local application imports
 from sessions.auth import encode_password, verify_password
 from sessions.base_verifier import BasicVerifier
 from sessions.core_types import SessionData
-from service.room import room
-# Game Logic import statements
+from service.room import Room
+from service.wrapper import frontEndWrapperRoom
+from database.Dao import Dao
+from database.DaoConstants import DaoConstants
+
+
+
 
 app = FastAPI()
 cookie_params = CookieParameters()
@@ -47,6 +47,23 @@ verifier = BasicVerifier(
     auth_http_exception=HTTPException(status_code=403, detail="invalid session"),
 )
 
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class UserRegisterIn(BaseModel):
     username: str
@@ -57,6 +74,17 @@ class UserRegisterIn(BaseModel):
 class UserLoginIn(BaseModel):
     email: str
     password: str
+
+
+class UserInput(BaseModel):
+    text: str
+
+current_room = Room()
+
+active_connections: List[WebSocket] = []
+active_rooms: dict[int: Room] = {}  # Different rooms have different states
+
+dao_instance = Dao()
 
 
 
@@ -144,22 +172,6 @@ async def getStats(request: Request, session_data: SessionData = Depends(verifie
     except Exception as e:
         raise Exception("Error stats", e)
 
-# @app.post("/login")
-# async def login(user: UserLoginIn, response: Response):
-#     dao = Dao()
-#     _user = dao.select_query(DaoConstants.GET_USER, ('test@example.com',))
-#
-#     username = "something1"
-#     password = "someting___random"
-#
-#     session = uuid4()
-#     data = SessionData(username=username)
-#     await backend.create(session, data)
-#     cookie.attach_to_response(response, session)
-#
-#     # check = safe_str_cmp(_user[0][1], user.password)
-#     # print(check)
-#     return {}, status.HTTP_200_OK
 
 @app.post("/login")
 async def login(user: UserLoginIn, response: Response):
@@ -218,7 +230,7 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
          if isexistingRoom  :
                 isexistingRoom=isexistingRoom[0][0]
                 print('In join room')
-                room_instance = room()
+                room_instance = Room()
                 isAllowed=room_instance.join_row(room_id, user_id)
                 if isAllowed:
                     print('Allowed go aheasd')
@@ -229,6 +241,7 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
          elif not isexistingRoom:
             room_instance = room()
             room_instance.createRoom(user_id,room_id=room_id)
+
             return templates.TemplateResponse("index.html", {"request": request})
             
     except Exception as e:
@@ -239,6 +252,23 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
 # @app.get("/room/{roomID}", response_class=HTMLResponse, dependencies=[Depends(cookie)])
 # async def get(request: Request, roomID: str,session_data: SessionData = Depends(verifier)):
 #     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/polling/data")
+async def polling_user_input():
+    data = dao_instance.select_query(DaoConstants.SELECT_LOGS_BY_ROOM_ID, (1,))
+    print(data)
+    message = ''.join([item[0].strip() + '\n' for item in data if item[0].strip() != ''])
+    return {'message': message}
+
+
+
+
+@app.post("/player_turn")
+async def turn(user_input: UserInput):
+    # if not current_room:
+    print(user_input.text)
+    frontEndWrapperRoom(user_input.text, current_room)
+    return {'input': user_input}
 
 
 @app.post("/logout")
@@ -263,5 +293,21 @@ async def logout(user: UserLoginIn, response: Response):
         return {}, status.HTTP_200_OK
     else:
         return {"error": "Invalid login credentials"}, status.HTTP_401_UNAUTHORIZED
+
+
+
+
+# TLS/SSL
+if __name__ == '__main__':
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8432,
+        reload=True,
+        ssl_keyfile=r"D:\Programming\SWE_681\secure-mini-mono\certificate\key.pem",
+        ssl_certfile=r"D:\Programming\SWE_681\secure-mini-mono\certificate\cert.pem",
+        ssl_keyfile_password="monopoly"
+    )
+
 
 

@@ -1,21 +1,25 @@
-import board
-from board import display_moves, dice_roll
-#from utils.driver import game_over
-from models.player import Player 
+from utils.driver import dice_roll, moves_list
+from models.player import Player
 import database.Dao as databaseObj
 import database.DaoConstants as DaoConst
 from utils.loging import log
 
+
 class monopoly_Instance:
     def __init__(self, roomID, player_list):
-        self.db=databaseObj.Dao()
-        self.daoConst=DaoConst.DaoConstants()
-        self.player_list=player_list
-        self.is_game_over= False
-        self.tiles= self.db.select_all_query(self.daoConst.GET_PROPERTY_LIST,True)
-        self.logger=log()
+        self.counterPlayer = 0
+        self.prevCounterPlayer = -1
+        self.db = databaseObj.Dao()
+        self.daoConst = DaoConst.DaoConstants()
+        self.player_list = player_list
+        self.is_game_over = False
+        self.isRolled = False
+        self.tiles = self.db.select_all_query(
+            self.daoConst.GET_PROPERTY_LIST, True)
+        self.logger = log()
+        self.buy_options = None
 
-    def special_cards(self,tile, player):
+    def special_cards(self, tile, player):
         if tile == 'Start/GO':
             player.add_balance(200)
             print('Collected $200!')
@@ -28,185 +32,306 @@ class monopoly_Instance:
 
         elif tile == 'GO TO JAIL':
             player.go_to_jail()
+            message = 'Sent to jail. Skipping two rounds...\n'
+            self.db.insertion_query(
+                self.daoConst.INSERT_LOG, (message, player.room_id))
 
         elif tile == 'Income Tax':
             player.reduce_balance(200)
-            self.logger.log_info('Income Tax of 200 has been deducted. Remove this print statement at the end')
-            print('Income Tax of 200 has been deducted. Remove this print statement at the end')
-
+            self.logger.log_info(
+                'Income Tax of 200 has been deducted\n')
+            print(
+                'Income Tax of 200 has been deducted. Remove this print statement at the end')
 
     def game_winner(self):
         highest_balance = 0
-        winner = None       #add proper logic to get the sume of all property values(money) owned plus money and evaluate for each
+        # add proper logic to get the sume of all property values(money) owned plus money and evaluate for each
+        winner = None
 
         for player in self.player_list:
             if player.balance > highest_balance:
                 highest_balance = player.balance
                 winner = player
-        #Write a dao stuff for updating winner for the room
+        # Write a dao stuff for updating winner for the room
+        # something like update table room set winner = (subquery of the guy that won idk)
         return winner
 
+    def player_buy_option(self):
+        if self.buy_options is None:
+            return
+        [current_tile, player] = self.buy_options
+        message = '\n'
+        # message = 'Buy %s? [Y/N] - \n' % (
+        #             current_tile.tile_name)
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
 
-    def game_start(self):
-        #global is_game_over
-       # print('This is playerLIst',self.player_list)
-        while not self.is_game_over:
-            correct_move= True
-            turn_ended = False
-            for player in self.player_list:
+        print("Name of the current tile is: ", current_tile.tile_name)
+        message = "Name of the current tile is: %s\n" % current_tile.tile_name
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                # Displays player details
-                message= "%s's turn" % player.username
-                self.logger.log_info(message)
-                self.db.insertion_query(self.daoConst.INSERT_LOG, (message.replace("'","''") , player.room_id))
+        if player.check_balance(current_tile):
+            player.buy_tile(current_tile)
+            self.db.insertion_query(self.daoConst.BUY_PROPERTY,
+                                    (player.room_id, player.player_id, current_tile.tile_id))
 
-                print(f'Cash - {player.balance}\t Rounds played - {player.game_round}\t Player position - {player.position}')
-                print('----------------------------------------------------------------')
+            # insert message that says tile bought
+            message = '%s bought for %s\n' % (current_tile.tile_name, current_tile.cost)
+            self.db.insertion_query(
+                self.daoConst.INSERT_LOG, (message, player.room_id))
+        else:
+            print("Insufficient Funds!!")
+            message = 'Insufficient Funds!!\n'
+            self.db.insertion_query(
+                self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                display_moves()
+    def player_roll_dice(self, player):
+        if self.isRolled:
+            print('You have already rolled the dice')
+            message = 'You have already rolled the dice\n'
+            self.db.insertion_query(
+                self.daoConst.INSERT_LOG, (message, player.room_id))
+            return
+        # if not rolled then, roll the dice
+        dice_value = dice_roll(player)
 
-                turn_ended = False
-                has_rolled = False
+        message = f'Rolled a {dice_value}'
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                # Move validation
-                while not turn_ended:
-                    game_input = input('Enter your choice: ') # insert in log and display.
-                   # game_input = await request.body()
-                    # Roll dice
-                    if game_input.casefold() == 'r':
-                        if not has_rolled:
-                            has_rolled = True
-                            player.player_moves(dice_roll(player)) #diceroll rolls 2 dices for a player and moves them
+        player.player_moves(dice_value)
+        current_tile = self.tiles[player.position]
 
-                            current_tile=self.tiles[player.position]
-                    
-                            asset_owned = False # assign this by
+        self.isRolled = True
 
-                            #Execute to get the tile_owner
-                            tileInput=[current_tile.tile_id,player.room_id]
-                            #tileOWNERInput
-                            tileOWNERInput=self.db.select_query( self.daoConst.GET_PROPERTY_OWNER,tileInput)
-                            print('This is tile owner',tileOWNERInput)
-                            tile_owner=None
-                            if tileOWNERInput :
-                                tile_owner = Player(room_id=tileOWNERInput[0][0], player_id=tileOWNERInput[0][1], username=tileOWNERInput[0][2], money=tileOWNERInput[0][3], position=tileOWNERInput[0][4], game_round=tileOWNERInput[0][5])
-                        
-                            if  current_tile.cost != None :
-                                if  tile_owner is None:
-                                    print('The current tile owner is None')
-                                    #BUYs LOGIC
-                                    is_buy = input(f'Buy {current_tile.tile_name}? [Y/N]')
+        print(
+            f'{player.username} landed on {current_tile.tile_name} - {current_tile.description}')
 
-                                    if is_buy.casefold() == 'y':
-                                        # Check for balance
-                                        if player.check_balance(current_tile):
-                                            player.buy_tile(current_tile)
-                                        else:
-                                            print("insufficient Funds !!")
+        message = '%s landed on %s - %s\n' % (
+            player.username, current_tile.tile_name, current_tile.description)
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+        message = '\n'
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                                elif tile_owner.player_id != player.player_id:
-                                    print('The current tile cost is: ',tile_owner.player_id )
-                                    # Deduct from current player
-                                    rent = player.charge_rent(player.position) 
-                                    print(f'{tile_owner.username} charges you {rent} as rent')
-                                    tile_owner.add_balance(rent)# insert updated money in DB
-                                    asset_owned = True # create entry in player_property
-                                    break     
+        asset_owned = False  # assign this by
 
-                                else:
-                                   
-                                   print('Player is on his own tile')
-                                    #asset_owned = True
-                                   break  
-                            else :
-                                print('SPECIAL CARD!!!' ,vars(current_tile))
-                                # Insert non-buyable logic special card
-                                self.special_cards(current_tile, player)
+        # Execute to get the tile_owner
+        tileInput = [current_tile.tile_id, player.room_id]
+        # tileOWNERInput
+        tileOWNERInput = self.db.select_query(
+            self.daoConst.GET_PROPERTY_OWNER, tileInput)
+        # print('This is tile owner',tileOWNERInput)
+        tile_owner = None
+        if tileOWNERInput:
+            tile_owner = Player(room_id=tileOWNERInput[0][0], player_id=tileOWNERInput[0][1], username=tileOWNERInput[
+                0][2], money=tileOWNERInput[0][3], position=tileOWNERInput[0][4], game_round=tileOWNERInput[0][5])
 
-                        else:
-                            print('You have already rolled the dice')# insert in log and display.
-                            continue
+        if current_tile.cost != None:
+            if tile_owner is None:
+                print('The current tile owner is None')
 
-                        
+                print(f"Buy {current_tile.tile_name}? [Y/N]")
 
-                    # The house and hotel are designed in such a way that only if you step on the tile, you can build them
-                    # Build a house
-                    elif game_input.casefold() == 'h':
-                        # Insert house logic here
-                        current_tile = board.BOARD_TILES[player.position]
-                        house_cost = board.BOARD_TILES_INFO[current_tile][4][1]
+                message = 'The current tile owner is None'
+                self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                        if player.balance > house_cost:
-                            player.build_house(current_tile)
-                        else:
-                            print('Insufficient Funds!')
+                message = f"Buy {current_tile.tile_name}? [Y/N]"
+                self.db.insertion_query(self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                    # Build a hotel
-                    elif game_input.casefold() == 'f':
-                        # Insert hotel logic here
-                        current_tile = board.BOARD_TILES[player.position]
-                        house_cost = board.BOARD_TILES_INFO[current_tile][4][1]
+                # is_buy = input(
+                #     f'Buy {current_tile.tile_name}? [Y/N]')
+                # if is_buy.lower() == 'y':
+                self.buy_options = [current_tile, player]
+                # Nobody owns the tile, player can buy
 
-                        if player.balance > house_cost:
-                            player.build_house(current_tile)
-                        else:
-                            print('Insufficient Funds!')
+            elif tile_owner.player_id != player.player_id:
+                # Deduct from current player
+                rent = player.charge_rent(current_tile)
 
-                    # View assets owned
-                    elif game_input.casefold() == 'v':
-                        if not bool(player.assets_owned):
-                            print('No assets owned!')
+                print(
+                    f'{tile_owner.username} charges you {rent} as rent')
+                message = '%s charges you %s as rent\n' % (
+                    tile_owner.username, rent)
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
 
-                        else:
-                            print('----------Assets Owned----------')
-                            for assets in player.assets_owned:
-                                print(f'{assets}')
-                        print(end='\n\n')
+                # insert updated money in DB
+                tile_owner.add_balance(rent)
+                asset_owned = True  # create entry in player_property
 
-                    # Sell property
-                    elif game_input.casefold() == 's':
-                        # Insert sell property logic here
-                        if player.assets_owned:
-                            [print(i, end=', ') for i in player.assets_owned]
-                            print(end='\n\n')
-                            sell_property = int(input(f'Enter 0 - {len(player.assets_owned)-1}: '))
-                            player.sell_tile(player.assets_owned[sell_property])
-                            print(end='\n\n')
-                        else:
-                            print('No assets owned!')
-                    # End turn
-                    elif game_input.casefold() == 'x':
-                        if has_rolled:
-                            turn_ended = True
-                            print(f'{player.username}\'s turn ended!', end='\n\n')
+            else:
 
-                        else:
-                            print("You need to first roll the dice!")
-
-                    # Incorrect input
-                    else:
-                        print('Error! Incorrect Input')
-
-
-                # Game over condition
-            self.is_game_over = self.game_over(player)
-            if(self.is_game_over):
-                self.game_winner(self)
-                break
-
-
-    # Displays game stats at the end
-    def getGameStats(self): 
-        for player in self.player_list:
-            player.display_player_details()
-            print('------------------------', end='\n')
-
-    #Check if 15 rounds are reached
-    def game_over(self,player):
-        if player.game_round == 15 or player.balance <= 0:
-            print('Game Over!')
-            return True
+                print('Player is on his own tile')
+                message = 'Player is on his own tile\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+                # asset_owned = True
 
         else:
-            return False
+            # print('SPECIAL CARD!!!' ,vars(current_tile))
+            # Insert non-buyable logic special card
+            self.special_cards(current_tile, player)
 
+    def current_player_turn(self, game_input):
+        if self.prevCounterPlayer != self.counterPlayer:
+            return
+        player = self.player_list[self.counterPlayer % len(self.player_list)]
+        message = f'Enter your choice -'
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+        message = f'{game_input}\n'
+        print(game_input, type(game_input))
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+        # Roll dice
+        if game_input.casefold() == 'r':
+            self.player_roll_dice(player)
+
+        elif game_input.casefold() == 'h':
+            # Insert house logic here
+            current_tile = self.tiles[player.position]
+            house_cost = current_tile.house_cost
+
+            if player.balance > house_cost:
+                player.build_house(current_tile)
+                message = 'House built!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+            else:
+                print('Insufficient Funds!')
+                message = 'Insufficient Funds!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+        elif game_input.casefold() == 'f':
+            # Insert hotel logic here
+            current_tile = self.tiles[player.position]
+            hotel_cost = current_tile.hotel_cost
+
+            if player.balance > hotel_cost:
+                player.build_hotel(current_tile)
+                message = 'Hotel built!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+            else:
+                print('Insufficient Funds!')
+                message = 'Insufficient Funds!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+        elif game_input.casefold() == 'v':
+            if not bool(player.assets_owned):
+                print('No assets owned!')
+                message = 'No assets owned!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+            else:
+                print('----------Assets Owned----------')
+                message = '----------Assets Owned----------\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+                for assets in player.assets_owned:
+                    print(f'{assets}')
+                    message = '%s' % assets
+                    self.db.insertion_query(
+                        self.daoConst.INSERT_LOG, (message, player.room_id))
+                message = '\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+            print(end='\n\n')
+
+        elif game_input.casefold() == 's':
+            # Insert sell property logic here
+            if player.assets_owned:
+                [print(i, end=', ') for i in player.assets_owned]
+                print(end='\n\n')
+                sell_input = int(
+                    input(f'Enter 0 - {len(player.assets_owned)}: ')) - 1
+                message = f'{player.assets_owned[sell_input]}'
+                selling_property_id = self.db.select_query(
+                    self.daoConst.GET_PROPERTY_FROM_LIST, (message,))
+                current_tile = self.tiles[selling_property_id[0][0]]
+                sell_property = player.sell_tile(current_tile)
+                self.db.insertion_query(
+                    self.daoConst.SELL_PROPERTY, (player.room_id, player.player_id, sell_property))
+                print(end='\n\n')
+
+            else:
+                print('No assets owned!')
+                message = 'No assets owned!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+        elif game_input.casefold() == 'x':
+            if self.isRolled:
+                self.isRolled = False
+                self.counterPlayer += 1
+                self.buy_options = None
+                print(f'{player.username}\'s turn ended!',
+                      end='\n\n')
+                message = '%s turn ended!\n' % player.username
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+            else:
+                print("You need to first roll the dice!")
+                message = 'You need to first roll the dice!\n'
+                self.db.insertion_query(
+                    self.daoConst.INSERT_LOG, (message, player.room_id))
+
+        else:
+            print('Error! Incorrect Input')
+            message = 'Error! Incorrect Input\n'
+            self.db.insertion_query(
+                self.daoConst.INSERT_LOG, (message, player.room_id))
+
+    def player_turn_start(self):
+        self.prevCounterPlayer = self.counterPlayer
+        player = self.player_list[self.counterPlayer % len(self.player_list)]
+        # Displays player details
+        message = f"{player.username}'s turn\n"
+        self.logger.log_info(message)
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message.replace("'", "''"), player.room_id))
+
+        message = 'Cash - %s \t Rounds played - %s \t Player position - %s\n' % (
+            player.balance, player.game_round, player.position)
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+        message = '----------------------------------------------------------------'
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+
+        print(
+            f'Cash - {player.balance}\t Rounds played - {player.game_round}\t Player position - {player.position}')
+        print('----------------------------------------------------------------')
+
+        moves_list()
+        print("Enter your choice: ")
+        message = f'Enter your choice - \n'
+        self.db.insertion_query(
+            self.daoConst.INSERT_LOG, (message, player.room_id))
+        # game_input = input('Enter your choice: ')
+
+    # Displays game stats at the end
+    # Need to display what name of the player, number of wins, number of losses and
+
+    def game_end_player_details(self):
+        for player in self.player_list:
+            pass
+
+    # Display logs of the game?
+
+    # Check if 15 rounds are reached
+    def game_over(self, player):
+        if player.game_round == 15 or player.balance <= 0:
+            print('Game Over!')
+            # Insert some logic and DB query that makes room inactive and updates the winner of the room
+            return True
+        else:
+            return False
