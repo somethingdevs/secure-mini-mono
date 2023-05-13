@@ -1,4 +1,5 @@
 <script src="./roomLogic.js"></script>
+<!--link rel="stylesheet" href="/static/room.css"-->
 <h1>Select Room</h1>
 <p id="msg"></p>
 
@@ -75,14 +76,10 @@
 
   
 
-function joinRoom()
-{ 
+function joinRoom() {
   console.log("IN JOIN ROOM");
-
-  roomId=document.getElementById('roomID').value;
-
-
-  const url = "/room/" + roomId;
+  const roomId = document.getElementById('roomID').value;
+  const url = `/room/${roomId}`;
   console.log(url)
   fetch(url, {
     method: 'POST',
@@ -106,23 +103,33 @@ function joinRoom()
 function createRoom() {
   console.log("IN CREATE ROOM");
 
-  roomId=document.getElementById('roomID').value;
-  const url = "/room/"+ 0;
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: playerName
-    })
-  })
-  .then(response => {
-    console.log(response);
-    window.location.href = response.url;
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-}
+  fetch("/maxroom")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        const rmaxRoomId = data[0].roomId;
+ 
+
+        const url = "/room/"+ rmaxRoomId;
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: playerName
+          })
+        })
+        .then(response => {
+          console.log(response);
+          window.location.href = response.url;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
 </script>

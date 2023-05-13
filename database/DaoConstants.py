@@ -5,12 +5,13 @@ class DaoConstants:
    CREATE_USER="insert into user ( username, email, pass) VALUES ('%s','%s','%s');"
    GET_USER="select username,pass from user where email='%s';"
    GET_EXISTING_USER="SELECT EXISTS (SELECT 1 FROM user WHERE username = '%s' AND email = '%s');"
+   ROOM_EXIST="SELECT EXISTS (SELECT 1 FROM rooms WHERE roomID = %s);"
    DISPLAY_WIN_LOSS = "SELECT u.username, CONCAT('W = ', COALESCE(wins, 0), ', L = ', COALESCE(losses, 0)) AS win_loss " \
                        "FROM user u LEFT JOIN (   SELECT room_player,  SUM(IF(room_winner = room_player, 1, 0)) AS wins, SUM(IF(room_winner != room_player, 1, 0)) AS losses " \
                        "FROM room GROUP BY room_player) wl ON u.user_id = wl.room_player WHERE u.username = '%s';  "  
    # should display number of wins and losses(total games - wins) of all playeres
    #CREATE_ROOM = ''
-   CREATE_ROOM="insert into room (room_id,room_player, room_status, room_winner) VALUES(%s,%s, '%s', %s)"
+   CREATE_ROOM="insert into room (room_id,room_player, room_status, room_winner) VALUES(%s,%s, '%s',  %s)"
    #Always list the columns u wanna fetch do not use * in any case
    # Always list the columns u wanna fetch do not use * in any case
    GET_MAX_ROOM='select max(room_id) from room;'
