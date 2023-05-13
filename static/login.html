@@ -1,41 +1,56 @@
-<h1>Login</h1>
-<p id="msg"></p>
-<form id="login-form">
-  <div>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/login.css">
+  <title>Login - Secure Monopoly Game</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Login</h1>
+    <p id="msg"></p>
+    <form id="login-form">
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <a class="register-link" href="/register">Register</a>
   </div>
-  <div>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required >
-  </div>
-  <button type="submit">Login</button>
-</form>
-<a href="/register">Register</a>
 
-<script>
-  const form = document.getElementById('login-form');
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const formData = new FormData(form);
-    const userData = {
-      email: formData.get('email'),
-      password: formData.get('password')
-    };
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
+
+  <script>
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const userData = {
+        email: formData.get('email'),
+        password: formData.get('password')
+      };
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      if (response.ok) {
+        console.log('Login successful!');
+        window.location.replace('/');
+      } else {
+        const errmsg = document.getElementById('msg');
+        errmsg.innerText = 'Login failed!';
+        console.error('Login failed!');
+      }
     });
-    if (response.ok) {
-      console.log('Login successful!');
-      window.location.replace('/');
-    } else {
-      const errmsg = document.getElementById('msg');
-      errmsg.innerText = 'Login failed!';
-      console.error('Login failed!');
-    }
-  });
-</script>
+  </script>
+</body>
+</html>

@@ -10,11 +10,6 @@ class log:
         self.console_handler.setFormatter(self.formatter)
         self.logger.addHandler(self.console_handler)
 
-
-
-
-
-
     def log_info(self,message,inp=None):  
         print('in logger info with var ',inp)
         self.console_handler.setLevel(logging.INFO)  
@@ -23,8 +18,6 @@ class log:
              self.logger.info(message,inp)
         else:
              self.logger.info(message)
-        
-       
 
     def log_debug(self,message,inp=None): 
         self.console_handler.setLevel(logging.DEBUG)  
@@ -36,7 +29,6 @@ class log:
              self.logger.debug(message,inp)
         else:
              self.logger.debug(message)
-        
 
     def log_error(self,message,inp=None):   
         self.console_handler.setLevel(logging.ERROR)  
