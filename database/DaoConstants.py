@@ -2,6 +2,9 @@ from decouple import config
 
 
 class DaoConstants:
+
+    ROOM_EXIST="SELECT EXISTS (SELECT 1 FROM rooms WHERE roomID = %s);"
+
     GET_PLAYERS_IN_ROOM = 'select room_id, player_id, player_balance, player_prop_id, player_position, player_round from player where room_id = %s;'
     CREATE_USER = "insert into user ( username, email, pass) VALUES ('%s','%s','%s');"
     GET_USER = "select username,pass from user where email='%s';"

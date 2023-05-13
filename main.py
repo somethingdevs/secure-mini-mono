@@ -197,17 +197,18 @@ async def login(user: UserLoginIn, response: Response):
         return {"error": "Invalid login credentials"}, status.HTTP_401_UNAUTHORIZED
 
 @app.get("/maxroom", response_class=JSONResponse, dependencies=[Depends(cookie)])
-async def getMaxRoom(room_id: int, request: Request, session_data: SessionData = Depends(verifier)):
+async def getMaxRoom( request: Request, session_data: SessionData = Depends(verifier)):
     try:
             db = Dao()
             daoConst = DaoConstants()
-            print('In room')
+           
             user_id = db.select_query(daoConst.GET_USER_ID, (session_data.username)) 
             user_id=user_id[0][0]
             maxRoom= db.select_all_query( daoConst.GET_MAX_ROOM,False)
             newroom=maxRoom[0][0]
+            print(newroom)
             print('New Room count',maxRoom)
-            return {'roomId':maxRoom},200
+            return {'roomId':newroom+1},200
 
     except Exception as e:
         return {'msg':"Error fetching max room"},500
@@ -221,9 +222,13 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
          daoConst = DaoConstants()
          print('In room')
          user_id = db.select_query(daoConst.GET_USER_ID, (session_data.username))
-         print(user_id)
+        
          user_id=user_id[0][0]
-         if room_id  >0:
+         print(user_id)
+         isexistingRoom=db.select_query(daoConst.ROOM_EXIST,(room_id,))
+         
+         if isexistingRoom  :
+                isexistingRoom=isexistingRoom[0][0]
                 print('In join room')
                 room_instance = Room()
                 isAllowed=room_instance.join_row(room_id, user_id)
@@ -233,9 +238,10 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
                 else:
                     print('Not allowed to join room')
                     return templates.TemplateResponse("room.html", {"request": request}) #back to room
-         elif room_id==0:
-            room_instance = Room()
-            room_instance.createRoom(user_id)
+         elif not isexistingRoom:
+            room_instance = room()
+            room_instance.createRoom(user_id,room_id=room_id)
+
             return templates.TemplateResponse("index.html", {"request": request})
             
     except Exception as e:

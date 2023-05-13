@@ -1,114 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
+<script src="./roomLogic.js"></script>
+<!--link rel="stylesheet" href="/static/room.css"-->
+<h1>Select Room</h1>
+<p id="msg"></p>
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="/static/room.css">
-  <title>Room - Secure Monopoly Game</title>
-</head>
-
-<body>
-  <form id="roomForm">
-    <h1>Select Room</h1>
-    <p id="msg"></p>
-    <div>
-      <label for="roomID">Room Id</label>
-      <input type="text" id="roomID" name="roomID" required>
-    </div>
-    <button onclick="joinRoom()">Join Room</button>
-    <button onclick="createRoom()">Create Room</button>
-    <p id="stats"></p>
-    <h2>Previous Game Logs</h2>
-    <textarea rows="20" cols="100" style="overflow: scroll;" id="logs"></textarea>
-  </form>
-
-    <script>
-      let playerName = '';
-      window.onload = function () {
-        console.log("IN INITIALIZE");
-        fetch('https://127.0.0.1:8000/whoami', {
-          method: 'GET',
-          credentials: "same-origin",
-        })
-          .then(response => response.json())
-          .then(data => {
-            playerName = data.username;
-            const msg = document.getElementById('msg');
-            msg.innerHTML = `Welcome, ${playerName}!`;
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+<script>
+  let playerName = '';
+  window.onload = function() {
+    console.log("IN INITIALIZE");
+  fetch('https://127.0.0.1:8000/whoami', {
+    method: 'GET',
+    credentials: "same-origin",
+  })
+    .then(response => response.json())
+    .then(data => {
+      playerName = data.username;
+      const msg = document.getElementById('msg');
+      msg.innerHTML = `Welcome, ${playerName}!`;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 
 
-        fetch('https://127.0.0.1:8000/stats', {
-          method: 'POST',
-          credentials: "same-origin",
-        })
-          .then(response => response.json())
-          .then(data => {
-            const user_stats = document.getElementById('stats');
-            console.log(data[0].stats)
-            stats.innerHTML = data[0].stats;
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+    fetch('https://127.0.0.1:8000/stats', {
+      method: 'POST',
+      credentials: "same-origin",
+    })
+    .then(response => response.json())
+    .then(data => {
+      const user_stats = document.getElementById('stats');
+      console.log(data[0].stats)
+      stats.innerHTML =data[0].stats;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 
 
-        //Get Logs 
-        fetch('https://127.0.0.1:8000/getAllLogs', {
-          method: 'GET',
-          credentials: "same-origin",
-        })
-          .then(response => response.json())
-          .then(data => {
-            const userLogs = document.getElementById('logs');
-            console.log(data);
-            if (data && data.logs) {
-              userLogs.value = data.logs.join('\n');
-            } else {
-              userLogs.value = 'No logs found';
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      }
-      function joinRoom() {
-        console.log("IN JOIN ROOM");
+    //Get Logs 
+    fetch('https://127.0.0.1:8000/getAllLogs', {
+  method: 'GET',
+  credentials: "same-origin",
+})
+.then(response => response.json())
+.then(data => {
+  const userLogs = document.getElementById('logs');
+  console.log(data);
+  if (data && data.logs) {
+    userLogs.value = data.logs.join('\n');
+  } else {
+    userLogs.value = 'No logs found';
+  }
+})
+.catch(error => {
+  console.error('Error:', error);
+});
+  }
 
-        roomId = document.getElementById('roomID').value;
+</script>
+<form id="roomForm">
+  <div>
+    <label for="roomID">Room Id</label>
+    <input type="text" id="roomID" name="roomID" required>
+  </div>
+  <button onclick="joinRoom()">Join Room</button>
+  <button onclick="createRoom()">Create Room</button>
+</form>
+
+<p id="stats"></p>
+
+<h2>Previous Game Logs</h2>
+<textarea rows="20" cols="100" style="overflow: scroll;" id="logs"></textarea>
+<script>
 
 
-        const url = "/room/" + roomId;
-        console.log(url)
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-          })
-        })
-          .then(response => {
-            console.log(response);
-            window.location.href = response.url;
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      }
+  
+
+function joinRoom() {
+  console.log("IN JOIN ROOM");
+  const roomId = document.getElementById('roomID').value;
+  const url = `/room/${roomId}`;
+  console.log(url)
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+    })
+  })
+  .then(response => {
+    console.log(response);
+    window.location.href = response.url;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
 
 
 
-      function createRoom() {
-        console.log("IN CREATE ROOM");
+function createRoom() {
+  console.log("IN CREATE ROOM");
 
-        roomId = document.getElementById('roomID').value;
-        const url = "/room/" + 0;
+  fetch("/maxroom")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        const rmaxRoomId = data[0].roomId;
+ 
+
+        const url = "/room/"+ rmaxRoomId;
         fetch(url, {
           method: 'POST',
           headers: {
@@ -118,16 +120,16 @@
             name: playerName
           })
         })
-          .then(response => {
-            console.log(response);
-            window.location.href = response.url;
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      }
-    </script>
-    <script src="./roomLogic.js"></script>
-</body>
-
-</html>
+        .then(response => {
+          console.log(response);
+          window.location.href = response.url;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+</script>
