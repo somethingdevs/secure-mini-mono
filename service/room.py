@@ -19,15 +19,16 @@ class room:
                 AS 4 players join execute the below functions
                
         '''
-        def joinRoom(self,roomID,userId):
-                #usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (roomID,))
+        #start the game 
+        def joinRoom(self,roomID,userId): 
+                usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (roomID,))
                 if usernames is None:
                         return "Room does not exist"
                 print(usernames)
                 player_details=[]
                 
                 while True:
-                        if (len(player_details)>=4):
+                        if len(player_details)>=4:
                                 print("Players more than 4")
                                 break
                         else:
@@ -49,11 +50,27 @@ class room:
                
                 m.getGameStats()
 
+        def join_row(self, room_id: int, user_id: int):
 
-        def createRoom(self,emailID):
+                if not room_id or not user_id:
+                        player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (self.roomID,))
+                        if len(player_details) >=4 :
+                                return False
+                        else:
+                                username = self.dbRoom.select_query(self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (room_id,))
+                                if not username:
+                                        return False #Room is not created
+                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM, (user_id, 'ACTIVE', None))
+                                return True 
+                else:
+                        return False
+                       
+                
+
+
+        def createRoom(self,userId):
                 try:
-                        userId=self.dbRoom.select_query( self.daoConstRoom.GET_USER_ID, (emailID))
-                        userId=userId[0][0]
+                        
                         print('userid is, ',userId)
                         if userId is not None:
                                 print('In here')

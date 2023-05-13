@@ -1,10 +1,12 @@
 # FastAPI import statements
 from uuid import UUID, uuid4
 from pydantic import BaseModel
-from fastapi import FastAPI, Request, Response, status, Depends
+from fastapi import FastAPI, Request, Response, status, Depends,WebSocket
 from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
+
 # from move import router as MoveRouter
 from fastapi.templating import Jinja2Templates
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
@@ -14,16 +16,21 @@ from service.userHandle import UserHandle
 from models.user import User
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
-
+from fastapi.responses import HTMLResponse
+from typing import List
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from sessions.auth import encode_password, verify_password
 from sessions.base_verifier import BasicVerifier
 from sessions.core_types import SessionData
-
+from service.room import room
 # Game Logic import statements
 
 app = FastAPI()
 cookie_params = CookieParameters()
 backend = InMemoryBackend[UUID, SessionData]()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="static")
 
 cookie = SessionCookie(
     cookie_name="cookie",
@@ -35,7 +42,7 @@ cookie = SessionCookie(
 
 verifier = BasicVerifier(
     identifier="general_verifier",
-    auto_error=True,
+    auto_error=False,
     backend=backend,
     auth_http_exception=HTTPException(status_code=403, detail="invalid session"),
 )
@@ -50,6 +57,25 @@ class UserRegisterIn(BaseModel):
 class UserLoginIn(BaseModel):
     email: str
     password: str
+
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def get(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/", response_class=HTMLResponse , dependencies=[Depends(cookie)])
+async def get(request: Request, session_data: SessionData = Depends(verifier)):
+    if session_data is not None:
+        return templates.TemplateResponse("room.html", {"request": request})
+    else:
+        return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/register", response_class=HTMLResponse)
+async def get(request: Request):
+        return templates.TemplateResponse("register.html", {"request": request})
 
 
 @app.get("/whoami", dependencies=[Depends(cookie)])
@@ -83,27 +109,40 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-@app.get("/getLogs", response_class=JSONResponse)
-async def get_logs(request: Request, room_id: int):
+@app.get("/getAllLogs", response_class=JSONResponse, dependencies=[Depends(cookie)])
+async def get_all_logs(request: Request, session_data: SessionData = Depends(verifier)):
     try:
         db = Dao()
         daoConst = DaoConstants()
-        logs = await db.select_query(daoConst.SELECT_LOGS_BY_ROOM_ID, (room_id,))
-        log_messages = [log[0] for log in logs]
-        return "\n".join(log_messages)
+        logs = db.select_query(daoConst.GET_USER_LOGS, (session_data.username))
+        return {"logs": logs}
     except Exception as e:
         raise Exception("Error in getting logs")
 
 
 @app.post("/register")
 async def register(user_input: UserRegisterIn):
-    dao = Dao()
-    _check = dao.insertion_query(DaoConstants.CREATE_USER, (user_input.username,
-                                                   user_input.email,
-                                                   encode_password(user_input.password)))
-    print(_check)
-    return {'message': 'success'}, 200
+    try:
+        dao = Dao()
+        _check = dao.insertion_query(DaoConstants.CREATE_USER, (user_input.username,
+                                                    user_input.email,
+                                                    encode_password(user_input.password)))
+        print(_check)
+        return {'message': 'success'}, 200
+    except Exception as e:
+        print(e)
+        return {'message': 'failed to create user'}, 500
 
+@app.post("/stats", response_class=JSONResponse, dependencies=[Depends(cookie)])
+async def getStats(request: Request, session_data: SessionData = Depends(verifier)):
+    try:
+        db = Dao()
+        daoConst = DaoConstants()
+        winner_stats = db.select_query(daoConst.DISPLAY_WIN_LOSS, (session_data.username))
+        print(winner_stats[0][1])
+        return {'stats':winner_stats[0][1]}, 200
+    except Exception as e:
+        raise Exception("Error stats", e)
 
 # @app.post("/login")
 # async def login(user: UserLoginIn, response: Response):
@@ -125,7 +164,7 @@ async def register(user_input: UserRegisterIn):
 @app.post("/login")
 async def login(user: UserLoginIn, response: Response):
     dao = Dao()
-    _user = dao.select_query(DaoConstants.GET_USER, ('hihi@gmail.com',))
+    _user = dao.select_query(DaoConstants.GET_USER, (user.email))
 
     # print(_user)
 
@@ -145,3 +184,24 @@ async def login(user: UserLoginIn, response: Response):
     else:
         return {"error": "Invalid login credentials"}, status.HTTP_401_UNAUTHORIZED
 
+
+
+
+@app.post("/room", response_class=JSONResponse, dependencies=[Depends(cookie)])
+async def roomLogic(request: Request, room_id: str,session_data: SessionData = Depends(verifier)):
+    try:
+         db = Dao()
+         daoConst = DaoConstants()
+         user_id = db.select_query(daoConst.GET_USER_ID, (session_data.username))
+         if room_id:
+                isAllowed=room.join_row(room_id, user_id)
+                if isAllowed:
+                    return templates.TemplateResponse("index.html", {"request": request})
+                else:
+                    return templates.TemplateResponse("room.html", {"request": request}) #back to room
+         else:
+            room.createRoom(user_id)
+            return templates.TemplateResponse("index.html", {"request": request})
+            
+    except Exception as e:
+        raise Exception("Error in getting logs")
