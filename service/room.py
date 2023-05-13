@@ -2,34 +2,39 @@ import service.monopoly_Instance as monopoly
 import database.Dao as databaseObj
 import database.DaoConstants as DaoConstRoom
 from models import player
+from utils.loging import log
+
 import time
 
 class room:
         def __init__(self) -> None:
                 self.dbRoom=databaseObj.Dao()
                 self.daoConstRoom=DaoConstRoom.DaoConstants() 
-                self.roomID=1   # need to make this from website input
-        #insert logic to wait for players joining this
-        #as a player joins insert in player table 
+                #self.roomID=1   # need to make this from website input
+                #insert logic to wait for players joining this
+                #as a player joins insert in player table 
         '''
                 as a player joins insert into room and player table with all values;
 
                 AS 4 players join execute the below functions
                
         '''
-        def play(self):
-                usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (self.roomID,))
+        #start the game 
+        def joinRoom(self,roomID,userId): 
+                usernames =  self.dbRoom.select_query( self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (roomID,))
+                if usernames is None:
+                        return "Room does not exist"
                 print(usernames)
                 player_details=[]
                 
                 while True:
-                        if (len(player_details)>=4):
+                        if len(player_details)>=4:
                                 print("Players more than 4")
                                 break
                         else:
                                 print('Waiting for players to join..........')
                                 time.sleep(5)
-                                player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (self.roomID,))
+                                player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (roomID,))
                         
                 #print('Printing list:',player_details[0].printPlayer())
                 player_list=[]
@@ -44,3 +49,36 @@ class room:
                 m.game_start()
                
                 m.getGameStats()
+
+        def join_row(self, room_id: int, user_id: int):
+                print('Player joined')
+                user_id=user_id[0][0]
+                if not room_id or not user_id:
+                        player_details= self.dbRoom.select_query( self.daoConstRoom.GET_PLAYERS_IN_ROOM, (room_id,))
+                        if len(player_details) >=4 :
+                                return False
+                        else:
+                                username = self.dbRoom.select_query(self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (room_id,))
+                                if not username:
+                                        return False #Room is not created
+                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM, (user_id, 'ACTIVE', None))
+                                return True 
+                else:
+                        return False
+                       
+                
+
+
+        def createRoom(self,userId,room_id):
+                try:
+                        print('userid is, ',userId)
+                        if userId is not None:
+                                print('In here')
+                                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM,(room_id,userId,'ACTIVE','NULL'))
+                               
+                        else:
+                                print('Cannot create user')
+                                return 'Error creating room'
+
+                except Exception as e:
+                 print('in exceptions',e)
