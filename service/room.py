@@ -3,11 +3,12 @@ import database.Dao as databaseObj
 import database.DaoConstants as DaoConstRoom
 from models import player
 import time
+from service.web_socket import database
 
 
 class room:
     def __init__(self) -> None:
-        self.dbRoom = databaseObj.Dao()
+        self.dbRoom = database
         self.daoConstRoom = DaoConstRoom.DaoConstants()
         self.roomID = 1   # need to make this from website input
         self.m = None

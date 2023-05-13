@@ -1,3 +1,5 @@
+from database.DaoConstants import DaoConstants
+import database
 from service.room import room
 from service.wrapper import frontEndWrapperRoom
 from fastapi import FastAPI, Request, WebSocket
@@ -6,7 +8,15 @@ from typing import List
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import sys
-import io
+
+
+db_config = {
+    "host": DaoConstants.HOST,
+    "port": 3306,
+    "user": DaoConstants.USER,
+    "password": DaoConstants.PASSWD,
+    "database": DaoConstants.DATABASE,
+}
 
 
 class OutputCapture:
@@ -22,9 +32,13 @@ class OutputCapture:
 
 startedWrite = False
 
+
 current_room = room()  # Temporary change later
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+database = database.Database(**db_config)
+
 
 templates = Jinja2Templates(directory="static")
 
@@ -32,46 +46,28 @@ templates = Jinja2Templates(directory="static")
 active_connections: List[WebSocket] = []
 active_rooms: dict[int: room] = {}  # Different rooms have different states
 
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>
-            var ws = new WebSocket("ws://localhost:8000/ws");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
 
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        </script>
-    </body>
-</html>
-"""
+# Connect to the database on startup
+@app.on_event("startup")
+async def startup_event():
+    database.connect()
+
+
+# Disconnect from the database on shutdown
+@app.on_event("shutdown")
+async def shutdown_event():
+    database.disconnect()
 
 
 @app.get("/", response_class=HTMLResponse)
 async def get(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
+@app.get("/test_db")
+async def test_db_connection():
+    data = database.select_query(DaoConstants.GET_PROPERTY_LIST, ())
+    print(data)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

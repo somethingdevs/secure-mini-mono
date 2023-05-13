@@ -1,24 +1,39 @@
+import pymysql
 
-
-from pprint import pprint
-import mysql.connector as conn
-from database.DaoConstants import DaoConstants
 from models.tile import Tile
 
 
-class Dao:
+class Database:
+    def __init__(self, host, port, user, password, database):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.database = database
+        self.connection = None
 
-    def __init__(self):
-        None
+    def connect(self):
+        self.connection = pymysql.connect(
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.password,
+            database=self.database,
+        )
 
-    # Display with condition FIX: make a single select_query with if else single or multiple to execute fetchOne or fetchAll
+    def disconnect(self):
+        if self.connection is not None:
+            self.connection.close()
+
+    def execute_query(self, query):
+        with self.connection.cursor() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchall()
+        return result
+
     def select_query(self, query, values):
         try:
-            self.db = conn.connect(host=DaoConstants.HOST,
-                                   user=DaoConstants.USER,
-                                   passwd=DaoConstants.PASSWD,
-                                   database=DaoConstants.DATABASE)
-            select_cursor = self.db.cursor()
+            select_cursor = self.connection.cursor()
             # print(query)
             if (len(values) > 1):
                 select_cursor.execute(query, (values[0], values[1]))
@@ -35,15 +50,10 @@ class Dao:
             return rows
 
 
-    # Display all
     def select_all_query(self, query, istile):
         tiles = []
 
         try:
-            self.db = conn.connect(host=DaoConstants.HOST,
-                                   user=DaoConstants.USER,
-                                   passwd=DaoConstants.PASSWD,
-                                   database=DaoConstants.DATABASE)
             # print(query)
             select_all_cursor = self.db.cursor()
             select_all_cursor.execute(query)
@@ -60,15 +70,10 @@ class Dao:
         except Exception as e:
             print("An exception occurred in select_all_query :", str(e))
 
-
         return tiles
 
     def insertion_query(self, query, values):
         try:
-            self.db = conn.connect(host=DaoConstants.HOST,
-                                   user=DaoConstants.USER,
-                                   passwd=DaoConstants.PASSWD,
-                                   database=DaoConstants.DATABASE)
             # print(query)
             insertion_cursor = self.db.cursor()
             if (len(values) > 1):
@@ -86,6 +91,5 @@ class Dao:
         # This part just replies with a successful or not, not really important tbh
         if insertion_cursor.rowcount == 1:
             return True
-
         else:
             return False

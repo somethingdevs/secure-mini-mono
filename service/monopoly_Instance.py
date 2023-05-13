@@ -1,3 +1,5 @@
+from database.database import Database
+from service.web_socket import database
 from utils.driver import dice_roll, moves_list
 from models.player import Player
 import database.Dao as databaseObj
@@ -5,11 +7,12 @@ import database.DaoConstants as DaoConst
 from utils.loging import log
 
 
+
 class monopoly_Instance:
     def __init__(self, roomID, player_list):
         self.counterPlayer = 0
         self.prevCounterPlayer = -1
-        self.db = databaseObj.Dao()
+        self.db = database
         self.daoConst = DaoConst.DaoConstants()
         self.player_list = player_list
         self.is_game_over = False
