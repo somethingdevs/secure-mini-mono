@@ -13,9 +13,11 @@ class Room:
         self.daoConstRoom = DaoConstRoom.DaoConstants()
         self.m = None
 
+
     # Used to play the game
 
-    def play(self, roomID, userId):
+    def play(self, roomID):
+        print('The room in play is -', roomID)
         usernames = self.dbRoom.select_query(self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (roomID,))
         if usernames is None:
             return "Room does not exist"
@@ -42,18 +44,19 @@ class Room:
                               position=player_details[i][4]))
         print('Printing list:', player_list[0].printPlayer())
 
-        self.m = monopoly.monopoly_Instance(roomID=1, player_list=player_list)  # need to get roomid over here from web
+        self.m = monopoly.monopoly_Instance(roomID=roomID, player_list=player_list)  # need to get roomid over here from web
         # m.game_start()
 
     # Joins a player to row in room table
     def join_row(self, room_id: int, user_id: int):
         print('Player joined')
-        user_id = user_id[0][0]
+        # user_id = user_id[0][0]
         if not room_id or not user_id:
             player_details = self.dbRoom.select_query(self.daoConstRoom.GET_PLAYERS_IN_ROOM, (room_id,))
             if len(player_details) >= 4:
                 return False
             else:
+                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_PLAYER, (room_id, user_id,))
                 username = self.dbRoom.select_query(self.daoConstRoom.GET_USERNAME_FROM_PLAYER, (room_id,))
                 if not username:
                     return False  # Room is not created
@@ -68,6 +71,7 @@ class Room:
             if userId is not None:
                 print('In here')
                 self.dbRoom.insertion_query(self.daoConstRoom.CREATE_ROOM, (room_id, userId, 'ACTIVE', 'NULL'))
+                self.dbRoom.insertion_query(self.daoConstRoom.CREATE_PLAYER, (room_id, userId,))
 
             else:
                 print('Cannot create user')

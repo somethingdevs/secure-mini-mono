@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./register.css">
+  <link rel="stylesheet" href="/static/register.css">
   <title>Register - Secure Monopoly Game</title>
 </head>
 <body>
   <div class="container">
     <h1>Register</h1>
+    <p id="msg"></p>
     <form id="register-form">
       <div>
         <label for="name">Name</label>
@@ -27,5 +28,37 @@
     </form>
     <a href="/login" class="login-link">Login</a>
   </div>
+
+
+  <script>
+    const form = document.getElementById('register-form');
+    const errmsg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const userData = {
+        email: formData.get('email'),
+        password: formData.get('password'),
+        username: formData.get('username')
+      };
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      if (response.ok) {
+        console.log('Registration successful!');
+        errmsg.innerText = 'Registration successful!';
+        window.location.replace('/login');
+      }
+      else {
+        errmsg.innerText = 'Registration failed!';
+        console.error('Registration failed!');
+      }
+    });
+  </script>
 </body>
 </html>

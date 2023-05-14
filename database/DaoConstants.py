@@ -3,7 +3,7 @@ from decouple import config
 
 class DaoConstants:
 
-    ROOM_EXIST="SELECT EXISTS (SELECT 1 FROM rooms WHERE roomID = %s);"
+    ROOM_EXIST="SELECT EXISTS (SELECT 1 FROM room WHERE room_id = %s);"
 
     GET_PLAYERS_IN_ROOM = 'select room_id, player_id, player_balance, player_prop_id, player_position, player_round from player where room_id = %s;'
     CREATE_USER = "insert into user ( username, email, pass) VALUES ('%s','%s','%s');"
@@ -12,7 +12,7 @@ class DaoConstants:
     DISPLAY_WIN_LOSS = "SELECT u.username, CONCAT('W = ', COALESCE(wins, 0), ', L = ', COALESCE(losses, 0)) AS win_loss " \
                        "FROM user u LEFT JOIN (   SELECT room_player,  SUM(IF(room_winner = room_player, 1, 0)) AS wins, SUM(IF(room_winner != room_player, 1, 0)) AS losses " \
                        "FROM room GROUP BY room_player) wl ON u.user_id = wl.room_player WHERE u.username = '%s';  "
-
+    CREATE_PLAYER = 'INSERT INTO player (room_id, player_id, player_balance, player_prop_id, player_position, player_round) VALUES (%s, %s, 1500, NULL, 0, 0);'
     CREATE_ROOM = "insert into room (room_id,room_player, room_status, room_winner) VALUES(%s,%s, '%s', %s)"
     GET_MAX_ROOM = 'select max(room_id) from room;'
     GET_PROPERTY_FROM_LIST = 'select property_id from  property_list where property_name = %s'

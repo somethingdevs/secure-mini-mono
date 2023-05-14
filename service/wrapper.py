@@ -3,10 +3,11 @@ from .room import Room
 from utils.driver import moves_list
 
 
-def frontEndWrapperRoom(data, room: Room):
+def frontEndWrapperRoom(data, room: Room, room_id_from_backend):
     # Check if the input is from the correct user
+    print('The room is - ', room_id_from_backend, 'in front end wrapper')
     if room.m is None:
-        room.play()
+        room.play(roomID=room_id_from_backend)
     frontEndWrapperGame(data, room.m)
 
 

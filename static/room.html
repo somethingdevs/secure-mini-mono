@@ -1,5 +1,4 @@
-<script src="./roomLogic.js"></script>
-<!--link rel="stylesheet" href="/static/room.css"-->
+<link rel="stylesheet" href="/static/room.css">
 <h1>Select Room</h1>
 <p id="msg"></p>
 
@@ -82,15 +81,14 @@ function joinRoom() {
   const url = `/room/${roomId}`;
   console.log(url)
   fetch(url, {
-    method: 'POST',
+    method: 'GET',
+    credentials: "same-origin",
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-    })
+    }
   })
   .then(response => {
-    console.log(response);
+    console.log(response.url);
     window.location.href = response.url;
   })
   .catch(error => {

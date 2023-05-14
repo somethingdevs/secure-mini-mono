@@ -12,8 +12,8 @@ class log:
 
     def log_info(self,message,inp=None):  
         print('in logger info with var ',inp)
-        self.console_handler.setLevel(logging.INFO)  
-        self.logger.setLevel(logging.INFO)
+        self.console_handler.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)
         if(inp):
              self.logger.info(message,inp)
         else:

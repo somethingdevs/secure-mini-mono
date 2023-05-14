@@ -54,6 +54,7 @@ origins = [
     "http://localhost:8080",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "https://127.0.0.1:8000"
 ]
 
 app.add_middleware(
@@ -226,23 +227,26 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
          user_id=user_id[0][0]
          print(user_id)
          isexistingRoom=db.select_query(daoConst.ROOM_EXIST,(room_id,))
-         
-         if isexistingRoom  :
-                isexistingRoom=isexistingRoom[0][0]
+         isexistingRoom=isexistingRoom[0][0]
+         print(isexistingRoom, 'exists?')
+         if isexistingRoom:
+                #isexistingRoom=isexistingRoom[0][0]
                 print('In join room')
                 room_instance = Room()
                 isAllowed=room_instance.join_row(room_id, user_id)
                 if isAllowed:
                     print('Allowed go aheasd')
-                    return templates.TemplateResponse("index.html", {"request": request})
+                    return templates.TemplateResponse("index.html", {"request": request, "room_id": room_id})
+
                 else:
                     print('Not allowed to join room')
                     return templates.TemplateResponse("room.html", {"request": request}) #back to room
          elif not isexistingRoom:
-            room_instance = room()
-            room_instance.createRoom(user_id,room_id=room_id)
+            room_instance = Room()
+            room_instance.createRoom(user_id, room_id=room_id)
 
-            return templates.TemplateResponse("index.html", {"request": request})
+            return templates.TemplateResponse("index.html", {"request": request, "room_id": room_id})
+
             
     except Exception as e:
         raise Exception("Error in getting logs", e)
@@ -254,20 +258,26 @@ async def roomLogic(room_id: int, request: Request, session_data: SessionData = 
 #     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/polling/data")
-async def polling_user_input():
-    data = dao_instance.select_query(DaoConstants.SELECT_LOGS_BY_ROOM_ID, (1,))
+async def polling_user_input(room_id: int):
+    print('Room id in get polling data', room_id)
+    data = dao_instance.select_query(DaoConstants.SELECT_LOGS_BY_ROOM_ID, (room_id,))
     print(data)
-    message = ''.join([item[0].strip() + '\n' for item in data if item[0].strip() != ''])
+    if data:
+        message = ''.join([item[0].strip() + '\n' for item in data if item[0].strip() != ''])
+    else:
+        message = f'Welcome to room {room_id}, your match will begin shortly!'
     return {'message': message}
 
 
 
 
 @app.post("/player_turn")
-async def turn(user_input: UserInput):
+async def turn(user_input: UserInput, room_id: int):
     # if not current_room:
+
     print(user_input.text)
-    frontEndWrapperRoom(user_input.text, current_room)
+    print('Room ID in backend is ', room_id)
+    frontEndWrapperRoom(user_input.text, current_room, room_id)
     return {'input': user_input}
 
 
@@ -302,7 +312,7 @@ if __name__ == '__main__':
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8432,
+        port=8000,
         reload=True,
         ssl_keyfile=r"D:\Programming\SWE_681\secure-mini-mono\certificate\key.pem",
         ssl_certfile=r"D:\Programming\SWE_681\secure-mini-mono\certificate\cert.pem",
